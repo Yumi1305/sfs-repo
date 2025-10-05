@@ -320,7 +320,7 @@ function WelcomePage() {
 
   if(redirect){
     alert('spam');
-    return (<></>);
+    navigate('/mainpg');
   }
   
   return (
