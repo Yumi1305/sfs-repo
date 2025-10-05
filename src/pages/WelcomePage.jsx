@@ -21,7 +21,6 @@ function WelcomePage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
-  const [redirect, setRedirect] = useState(false);
   
   // Refs to track animations for cleanup
   const lenisRef = useRef(null);
@@ -32,6 +31,53 @@ function WelcomePage() {
   const isUnmountingRef = useRef(false);
 
   useEffect(() => {
+    // Initialize Lenis
+    lenisRef.current = new Lenis({
+      duration: 1,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smooth: true,
+    });
+
+    function raf(time) {
+      if (lenisRef.current && !isUnmountingRef.current) {
+        lenisRef.current.raf(time);
+        requestAnimationFrame(raf);
+      }
+    }
+    requestAnimationFrame(raf);
+    
+    if (lenisRef.current) {
+      lenisRef.current.on('scroll', ScrollTrigger.update);
+    }
+
+    // Blinker animation
+    if (blinkerRef.current) {
+      blinkerTlRef.current = gsap.to(blinkerRef.current, {
+        opacity: 0,
+        duration: 0.8,
+        repeat: -1,
+        yoyo: true,
+        ease: "power2.inOut"
+      });
+    }
+
+    // ScrollTrigger animation
+    if (section1Ref.current && section2Ref.current) {
+      gsap.set(section2Ref.current, { yPercent: 100 });
+      scrollTriggerRef.current = gsap.to(section2Ref.current, {
+        yPercent: 0,
+        ease: "ease-in",
+        scrollTrigger: {
+          trigger: section1Ref.current,
+          start: "top top",
+          end: "top bottom",
+          scrub: 1,
+          pin: section1Ref.current,
+          pinSpacing: true,
+          markers: false
+        }
+      });
+    }
 
     // Handle auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
@@ -62,7 +108,7 @@ function WelcomePage() {
       const { data: { session } } = await supabase.auth.getSession();
       if (session && !isUnmountingRef.current) {
         await createOrUpdateUserProfile(session.user);
-        setRedirect(true);
+        navigate('/mainpg');
       }
     };
     checkUser();
@@ -255,10 +301,6 @@ function WelcomePage() {
     }
   };
 
-  if(redirect){
-    navigate('/mainpg');
-  }
-  
   return (
     <>
       <section ref={section1Ref} className="section main-content">
