@@ -30,6 +30,27 @@ function WelcomePage() {
   const subscriptionRef = useRef(null);
   const isUnmountingRef = useRef(false);
 
+  const cleanUpAnimations = () => {
+    // Set unmounting flag immediately
+    isUnmountingRef.current = true;
+    
+    // Clean up animations before navigation
+    try {
+      if (masterTlRef.current) {
+        masterTlRef.current.kill();
+      }
+      if (blinkerTlRef.current) {
+        blinkerTlRef.current.kill();
+      }
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill(true));
+      if (lenisRef.current) {
+        lenisRef.current.destroy();
+      }
+    } catch (error) {
+      console.warn('Pre-navigation cleanup error:', error);
+    }
+  }
+
   useEffect(() => {
     // Initialize Lenis
     lenisRef.current = new Lenis({
@@ -123,26 +144,8 @@ function WelcomePage() {
       if (isUnmountingRef.current) return;
       const { data: { session } } = await supabase.auth.getSession();
       if (session && !isUnmountingRef.current) {
-        await createOrUpdateUserProfile(session.user);
-        
-        // Set unmounting flag immediately
-        isUnmountingRef.current = true;
-    
-        // Clean up animations before navigation
-        try {
-          if (masterTlRef.current) {
-            masterTlRef.current.kill();
-          }
-          if (blinkerTlRef.current) {
-            blinkerTlRef.current.kill();
-          }
-          ScrollTrigger.getAll().forEach(trigger => trigger.kill(true));
-          if (lenisRef.current) {
-            lenisRef.current.destroy();
-          }
-        } catch (error) {
-          console.warn('Pre-navigation cleanup error:', error);
-        }
+        await createOrUpdateUserProfile(session.user);        
+        cleanUpAnimations();
         
         // Navigate immediately
         navigate('/mainpg');
@@ -240,25 +243,7 @@ function WelcomePage() {
       setError(error.message);
     } else {
       console.log('Login successful!'); // Add this
-
-      // Set unmounting flag immediately
-      isUnmountingRef.current = true;
-    
-      // Clean up animations before navigation
-      try {
-        if (masterTlRef.current) {
-          masterTlRef.current.kill();
-        }
-        if (blinkerTlRef.current) {
-          blinkerTlRef.current.kill();
-        }
-        ScrollTrigger.getAll().forEach(trigger => trigger.kill(true));
-        if (lenisRef.current) {
-          lenisRef.current.destroy();
-        }
-      } catch (error) {
-        console.warn('Pre-navigation cleanup error:', error);
-      }
+      cleanUpAnimations();
       
       // Navigate immediately
       navigate('/mainpg');
@@ -303,25 +288,7 @@ function WelcomePage() {
 
   const handleSignupRedirect = (e) => {
     e.preventDefault();
-    
-    // Set unmounting flag immediately
-    isUnmountingRef.current = true;
-    
-    // Clean up animations before navigation
-    try {
-      if (masterTlRef.current) {
-        masterTlRef.current.kill();
-      }
-      if (blinkerTlRef.current) {
-        blinkerTlRef.current.kill();
-      }
-      ScrollTrigger.getAll().forEach(trigger => trigger.kill(true));
-      if (lenisRef.current) {
-        lenisRef.current.destroy();
-      }
-    } catch (error) {
-      console.warn('Pre-navigation cleanup error:', error);
-    }
+    cleanUpAnimations();
     
     // Navigate immediately
     navigate('/signup');
