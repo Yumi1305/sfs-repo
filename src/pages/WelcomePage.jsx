@@ -67,7 +67,7 @@ function WelcomePage() {
       scrollTriggerRef.current = gsap.to(section2Ref.current, {
         yPercent: 0,
         ease: "ease-in",
-        scrollTrigger: {
+        /*scrollTrigger: {
           trigger: section1Ref.current,
           start: "top top",
           end: "top bottom",
@@ -75,7 +75,7 @@ function WelcomePage() {
           pin: section1Ref.current,
           pinSpacing: true,
           markers: false
-        }
+        }*/
       });
     }
 
