@@ -63,7 +63,7 @@ function WelcomePage() {
 
     // ScrollTrigger animation
     if (section1Ref.current && section2Ref.current) {
-      //gsap.set(section2Ref.current, { yPercent: 100 });
+      gsap.set(section2Ref.current, { yPercent: 100 });
       scrollTriggerRef.current = gsap.to(section2Ref.current, {
         yPercent: 0,
         ease: "ease-in",
