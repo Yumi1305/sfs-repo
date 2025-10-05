@@ -32,69 +32,6 @@ function WelcomePage() {
   const isUnmountingRef = useRef(false);
 
   useEffect(() => {
-    // Initialize Lenis
-    lenisRef.current = new Lenis({
-      duration: 1,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      smooth: true,
-    });
-
-    function raf(time) {
-      if (lenisRef.current && !isUnmountingRef.current) {
-        lenisRef.current.raf(time);
-        requestAnimationFrame(raf);
-      }
-    }
-    requestAnimationFrame(raf);
-    
-    if (lenisRef.current) {
-      lenisRef.current.on('scroll', ScrollTrigger.update);
-    }
-
-    // Blinker animation
-    if (blinkerRef.current) {
-      blinkerTlRef.current = gsap.to(blinkerRef.current, {
-        opacity: 0,
-        duration: 0.8,
-        repeat: -1,
-        yoyo: true,
-        ease: "power2.inOut"
-      });
-    }
-
-    // ScrollTrigger animation
-    if (section1Ref.current && section2Ref.current) {
-      gsap.set(section2Ref.current, { yPercent: 100 });
-      scrollTriggerRef.current = gsap.to(section2Ref.current, {
-        yPercent: 0,
-        ease: "ease-in",
-        scrollTrigger: {
-          trigger: section1Ref.current,
-          start: "top top",
-          end: "top bottom",
-          scrub: 1,
-          pin: section1Ref.current,
-          pinSpacing: true,
-          markers: false
-        }
-      });
-    }
-
-    // Text animation
-    if (textRef.current) {
-      masterTlRef.current = gsap.timeline({ repeat: -1 });
-      words.forEach((word) => {
-        let tlText = gsap.timeline({ repeat: 1, yoyo: true, repeatDelay: 1.5 });
-        tlText.to(textRef.current, {
-          duration: 1,
-          text: {
-            value: word,
-            delimiter: ""
-          }
-        });
-        masterTlRef.current.add(tlText);
-      });
-    }
 
     // Handle auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
@@ -319,7 +256,6 @@ function WelcomePage() {
   };
 
   if(redirect){
-    alert('spam');
     navigate('/mainpg');
   }
   
