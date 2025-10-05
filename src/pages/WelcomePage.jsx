@@ -61,6 +61,21 @@ function WelcomePage() {
       });
     }
 
+    // Text animation
+    if (textRef.current) {
+      masterTlRef.current = gsap.timeline({ repeat: -1 });
+      words.forEach((word) => {
+        let tlText = gsap.timeline({ repeat: 1, yoyo: true, repeatDelay: 1.5 });
+        tlText.to(textRef.current, {
+          duration: 1,
+          text: {
+            value: word,
+            delimiter: ""
+          }
+        });
+        masterTlRef.current.add(tlText);
+      });
+    }
 
     // Handle auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
