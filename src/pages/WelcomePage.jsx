@@ -124,6 +124,7 @@ function WelcomePage() {
       const { data: { session } } = await supabase.auth.getSession();
       if (session && !isUnmountingRef.current) {
         await createOrUpdateUserProfile(session.user);
+        
         // Set unmounting flag immediately
         isUnmountingRef.current = true;
     
@@ -239,6 +240,27 @@ function WelcomePage() {
       setError(error.message);
     } else {
       console.log('Login successful!'); // Add this
+
+      // Set unmounting flag immediately
+      isUnmountingRef.current = true;
+    
+      // Clean up animations before navigation
+      try {
+        if (masterTlRef.current) {
+          masterTlRef.current.kill();
+        }
+        if (blinkerTlRef.current) {
+          blinkerTlRef.current.kill();
+        }
+        ScrollTrigger.getAll().forEach(trigger => trigger.kill(true));
+        if (lenisRef.current) {
+          lenisRef.current.destroy();
+        }
+      } catch (error) {
+        console.warn('Pre-navigation cleanup error:', error);
+      }
+      
+      // Navigate immediately
       navigate('/mainpg');
     }
   } catch (err) {
