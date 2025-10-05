@@ -320,6 +320,7 @@ function WelcomePage() {
 
   if(redirect){
     alert('spam');
+    return (<></>);
   }
   
   return (
