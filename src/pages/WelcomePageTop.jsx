@@ -11,8 +11,6 @@ gsap.registerPlugin(ScrollTrigger, TextPlugin);
 function WelcomePageTop() {
   const words = ["Students", "Learners", "Creators", "Dreamers", "Achievers"];
   const blinkerRef = useRef(null);
-  const section1Ref = useRef(null);
-  const section2Ref = useRef(null);
   const textRef = useRef(null);
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
@@ -296,8 +294,7 @@ function WelcomePageTop() {
 
   return (
     <>
-      <section ref={section1Ref} className="section main-content">
-        <div className="left">
+      <div className="left">
           <div className="t">
             <div className="title t1">Students for</div>
             <div className="title students-interactive">
@@ -490,7 +487,6 @@ function WelcomePageTop() {
             />
           </svg>
         </div>
-      </section>
     </>
   );
 }
