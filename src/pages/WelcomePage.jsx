@@ -61,6 +61,24 @@ function WelcomePage() {
       });
     }
 
+    // ScrollTrigger animation
+    if (section1Ref.current && section2Ref.current) {
+      gsap.set(section2Ref.current, { yPercent: 100 });
+      scrollTriggerRef.current = gsap.to(section2Ref.current, {
+        yPercent: 0,
+        ease: "ease-in",
+        scrollTrigger: {
+          trigger: section1Ref.current,
+          start: "top top",
+          end: "top bottom",
+          scrub: 1,
+          pin: section1Ref.current,
+          pinSpacing: true,
+          markers: false
+        }
+      });
+    }
+
     // Text animation
     if (textRef.current) {
       masterTlRef.current = gsap.timeline({ repeat: -1 });
