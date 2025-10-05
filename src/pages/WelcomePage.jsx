@@ -130,10 +130,6 @@ function WelcomePage() {
     };
     checkUser();
 
-    if(redirect){
-      alert('spam');
-    }
-
     return () => {
       // Set unmounting flag
       isUnmountingRef.current = true;
@@ -322,6 +318,10 @@ function WelcomePage() {
     }
   };
 
+  if(redirect){
+    alert('spam');
+  }
+  
   return (
     <>
       <section ref={section1Ref} className="section main-content">
