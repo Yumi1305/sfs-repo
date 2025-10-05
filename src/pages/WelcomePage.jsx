@@ -21,7 +21,6 @@ function WelcomePage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
-  const [redirect, setRedirect] = useState(false);
   
   // Refs to track animations for cleanup
   const lenisRef = useRef(null);
@@ -32,7 +31,6 @@ function WelcomePage() {
   const isUnmountingRef = useRef(false);
 
   useEffect(() => {
-    navigate('/mainpg');
     // Initialize Lenis
     lenisRef.current = new Lenis({
       duration: 1,
@@ -126,22 +124,10 @@ function WelcomePage() {
       const { data: { session } } = await supabase.auth.getSession();
       if (session && !isUnmountingRef.current) {
         await createOrUpdateUserProfile(session.user);
-        setRedirect(true);
+        navigate('/mainpg');
       }
     };
     checkUser();
-
-    navigate('/mainpg');
-  
-    if(redirect){
-      alert("xuh");
-      //return <div>testing moremoremoremore</div>
-      alert(redirect);
-      alert("xuh 2");
-    }
-
-    navigate('/mainpg');
-  
 
     return () => {
       // Set unmounting flag
@@ -333,7 +319,6 @@ function WelcomePage() {
 
   return (
     <>
-      <div>{redirect}</div>
       <section ref={section1Ref} className="section main-content">
         <div className="left">
           <div className="t">
