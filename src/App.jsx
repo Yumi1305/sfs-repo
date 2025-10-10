@@ -1,7 +1,7 @@
 import './App.css'
 import WelcomePage from './pages/WelcomePage'
 import MainPage from './pages/customer/MainPage'
-import { Routes, Route} from 'react-router-dom'
+import { BrowserRouter, Routes, Route} from 'react-router-dom'
 import CoursePage from './pages/customer/CoursePage'
 import Favorites from './pages/customer/Favorites'
 import { useEffect, useRef } from 'react'
@@ -36,6 +36,7 @@ function App() {
     };
   }, []);
   return (
+    <BrowserRouter>
     <UserProvider>
     <CursorProvider>
     <CourseProvider>
@@ -71,6 +72,7 @@ function App() {
     </CourseProvider>
     </CursorProvider>
     </UserProvider>
+    </BrowserRouter>
   );
 }
 
