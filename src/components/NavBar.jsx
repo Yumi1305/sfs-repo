@@ -30,7 +30,7 @@ function NavBar({onSearch}){
   return (
     <>
       <div className={styles["navBar"]}>
-        <div className={styles["left"]}>SFS</div>
+        <Link to={"/mainpg"} className={styles["left"]}>SFS</Link>
         <SearchBar
           onSearch={handleSearch}
           placeholder="Search courses..."

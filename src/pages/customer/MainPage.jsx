@@ -123,6 +123,7 @@ function MainPage() {
       const tags = course.course_tag.map(course => course.slug)
       return tags
     }
+    return []
   }
 
   const handleSelect = (category) => {
@@ -131,6 +132,8 @@ function MainPage() {
     setIsSearching(true)
     try{
       courseList.forEach(course => console.log(getCourseTags(course)))
+      console.log('RIGHT HERE!!!!', courseList[0]);
+      console.log(getCourseTags(courseList[0]).includes("math"))
       const filteredCourses = courseList.filter(course => getCourseTags(course).includes(category));
       setCategoryResults(filteredCourses);
       console.log(filteredCourses)
@@ -140,6 +143,7 @@ function MainPage() {
     } finally{
       setIsSearching(false)
     }
+  
 
   }
 
@@ -170,15 +174,6 @@ function MainPage() {
     }
   }
 
-  // useEffect(()=>{
-  //   const getUsers = async()=>{
-  //     let response = await fetchUsers();
-  //     return response
-  //   }
-  //   console.log("HEREHEHRHEHEHREHRHE RIGHT HERE!")
-  //   console.log(getUsers())
-  // }, [])
-
   // Show loader while courses are loading
   if (showLoader) {
     return (
@@ -199,8 +194,8 @@ function MainPage() {
   // usersMap.forEach(user => uniqueUsers.set(user.ID, user))
   // uniqueUsers = Array.from(uniqueUsers.values())
 
-  console.log('USERS RIGHT HERE.', users)
-  getAuthorInfo(users[0].ID)
+  // console.log('USERS RIGHT HERE.', users)
+  // getAuthorInfo(users[0].ID)
 
 
   console.log('Courses to display:', coursesToDisplay);

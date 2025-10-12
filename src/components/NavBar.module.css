@@ -44,6 +44,10 @@
   font-size: 1.3rem;
 }
 
+.left:hover{
+  cursor: pointer;
+}
+
 .navBar .right{
   display: flex;
   gap: 1.5rem;

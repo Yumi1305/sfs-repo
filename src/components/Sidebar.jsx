@@ -12,19 +12,20 @@ const sortBy = ["popular", "latest", "grade"]
 function Sidebar({onSelectCategory}) {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const handleCategoryClick = (category) => {
-    onSelectCategory(category.toLowerCase());
+    if (category === selectedCategory){
+      setSelectedCategory(null)
+      onSelectCategory(null)
+    }
+    else{onSelectCategory(category.toLowerCase());
     console.log(category.toLowerCase())
+    setSelectedCategory(category);
+    }
+
+    console.log('HEREHEHREHRHERHEE', selectedCategory)
+
   };
   return (
     <div className={styles["side-bar"]}>
-      {/* <div className={styles["search-bar"]}>
-        <FaSearch className={styles["search-icon"]} />
-        <input type="text" placeholder="Search" />
-        <div className={styles["shortcut"]}>
-          <span className={styles["key"]}>⌘</span>
-          <span className={styles["key"]}>K</span>
-        </div>
-      </div> */}
 
       <div className={styles["filter-section"]}>
         <h3>Filter by Category</h3>
@@ -33,7 +34,7 @@ function Sidebar({onSelectCategory}) {
             <button
               key={category}
               className={clsx(styles["category-button"], 
-                selectedCategory === category && "active")}
+                selectedCategory === category && styles["active"])}
               onClick={() => handleCategoryClick(category)}
             >
               {category}
