@@ -1,13 +1,14 @@
 import '../pages/WelcomePage.css';
 import Lenis from '@studio-freight/lenis';
 import gsap from 'gsap';
+import { useGSAP } from '@gsap/react';
 import ScrollTrigger from 'gsap/ScrollTrigger';
 import TextPlugin from 'gsap/TextPlugin';
 import { useEffect, useRef, useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
-gsap.registerPlugin(ScrollTrigger, TextPlugin);
+gsap.registerPlugin(ScrollTrigger, TextPlugin, useGSAP);
 
 function WelcomePage() {
   const words = ["Students", "Learners", "Creators", "Dreamers", "Achievers"];
@@ -15,65 +16,43 @@ function WelcomePage() {
   const section1Ref = useRef(null);
   const section2Ref = useRef(null);
   const textRef = useRef(null);
+  const containerRef = useRef(null);
+  const flower1Ref = useRef(null);
+  const flower2Ref = useRef(null)
   const navigate = useNavigate();
+  
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   
-  // Refs to track animations for cleanup
   const lenisRef = useRef(null);
-  const masterTlRef = useRef(null);
-  const scrollTriggerRef = useRef(null);
-  const blinkerTlRef = useRef(null);
-  const subscriptionRef = useRef(null);
   const isUnmountingRef = useRef(false);
 
-  const cleanUpAnimations = () => {
-    // Set unmounting flag immediately
-    isUnmountingRef.current = true;
-    
-    // Clean up animations before navigation
-    try {
-      if (masterTlRef.current) {
-        masterTlRef.current.kill();
-      }
-      if (blinkerTlRef.current) {
-        blinkerTlRef.current.kill();
-      }
-      ScrollTrigger.getAll().forEach(trigger => trigger.kill(true));
-      if (lenisRef.current) {
-        lenisRef.current.destroy();
-      }
-    } catch (error) {
-      console.warn('Pre-navigation cleanup error:', error);
-    }
-  }
-
-  useEffect(() => {
-    // Initialize Lenis
-    lenisRef.current = new Lenis({
-      duration: 1,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      smooth: true,
-    });
-
-    function raf(time) {
-      if (lenisRef.current && !isUnmountingRef.current) {
-        lenisRef.current.raf(time);
-        requestAnimationFrame(raf);
-      }
-    }
-    requestAnimationFrame(raf);
-    
-    if (lenisRef.current) {
-      lenisRef.current.on('scroll', ScrollTrigger.update);
-    }
-
+  // Handle all GSAP animations with automatic cleanup
+  useGSAP(() => {
     // Blinker animation
+    if (flower1Ref.current){
+      gsap.to(flower1Ref.current, {
+        rotation: 360, 
+        duration: 2, 
+        ease: 'power2.inOut', 
+        repeat: -1, 
+        yoyo: true
+      });
+    }
+    if (flower2Ref.current){
+      gsap.to(flower2Ref.current, {
+        scale: 1.2, 
+        duration: 2, 
+        ease: 'power1.inOut', 
+        repeat: -1, 
+        yoyo: true
+      })
+    }
     if (blinkerRef.current) {
-      blinkerTlRef.current = gsap.to(blinkerRef.current, {
+      gsap.to(blinkerRef.current, {
         opacity: 0,
         duration: 0.8,
         repeat: -1,
@@ -85,7 +64,7 @@ function WelcomePage() {
     // ScrollTrigger animation
     if (section1Ref.current && section2Ref.current) {
       gsap.set(section2Ref.current, { yPercent: 100 });
-      scrollTriggerRef.current = gsap.to(section2Ref.current, {
+      gsap.to(section2Ref.current, {
         yPercent: 0,
         ease: "ease-in",
         scrollTrigger: {
@@ -102,9 +81,9 @@ function WelcomePage() {
 
     // Text animation
     if (textRef.current) {
-      masterTlRef.current = gsap.timeline({ repeat: -1 });
+      const masterTl = gsap.timeline({ repeat: -1 });
       words.forEach((word) => {
-        let tlText = gsap.timeline({ repeat: 1, yoyo: true, repeatDelay: 1.5 });
+        const tlText = gsap.timeline({ repeat: 1, yoyo: true, repeatDelay: 1.5 });
         tlText.to(textRef.current, {
           duration: 1,
           text: {
@@ -112,22 +91,49 @@ function WelcomePage() {
             delimiter: ""
           }
         });
-        masterTlRef.current.add(tlText);
+        masterTl.add(tlText);
       });
     }
+  }, { scope: containerRef }); // useGSAP auto-cleans up all animations in this scope
 
-    // Handle auth state changes
+  // Handle Lenis smooth scrolling
+  useEffect(() => {
+    lenisRef.current = new Lenis({
+      duration: 1,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smooth: true,
+    });
+
+    function raf(time) {
+      if (lenisRef.current && !isUnmountingRef.current) {
+        lenisRef.current.raf(time);
+        requestAnimationFrame(raf);
+      }
+    }
+    requestAnimationFrame(raf);
+    
+    lenisRef.current.on('scroll', ScrollTrigger.update);
+
+    return () => {
+      isUnmountingRef.current = true;
+      if (lenisRef.current) {
+        lenisRef.current.destroy();
+        lenisRef.current = null;
+      }
+    };
+  }, []);
+
+  // Handle auth state and check existing session
+  useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (isUnmountingRef.current) return;
       
       if (event === 'SIGNED_IN' && session) {
-        // Create or update user profile
         await createOrUpdateUserProfile(session.user);
         if (!isUnmountingRef.current) {
           navigate('/mainpg');
         }
       } else if (event === 'SIGNED_OUT') {
-        // Clear any local state if needed
         if (!isUnmountingRef.current) {
           setEmail('');
           setPassword('');
@@ -136,65 +142,21 @@ function WelcomePage() {
         }
       }
     });
-    
-    subscriptionRef.current = subscription;
 
     // Check if user is already logged in
     const checkUser = async () => {
       if (isUnmountingRef.current) return;
       const { data: { session } } = await supabase.auth.getSession();
       if (session && !isUnmountingRef.current) {
-        await createOrUpdateUserProfile(session.user);        
-        cleanUpAnimations();
-        
-        // Navigate immediately
+        await createOrUpdateUserProfile(session.user);
         navigate('/mainpg');
       }
     };
     checkUser();
 
     return () => {
-      // Set unmounting flag
       isUnmountingRef.current = true;
-      
-      // Clean up in reverse order of creation
-      try {
-        // Kill all timelines first
-        if (masterTlRef.current) {
-          masterTlRef.current.kill();
-          masterTlRef.current = null;
-        }
-        
-        if (blinkerTlRef.current) {
-          blinkerTlRef.current.kill();
-          blinkerTlRef.current = null;
-        }
-        
-        // Kill ScrollTrigger instances
-        ScrollTrigger.getAll().forEach(trigger => {
-          if (trigger) {
-            trigger.kill(true);
-          }
-        });
-        
-        // Clear ScrollTrigger completely
-        ScrollTrigger.clearMatchMedia();
-        ScrollTrigger.refresh();
-        
-        // Destroy Lenis
-        if (lenisRef.current) {
-          lenisRef.current.destroy();
-          lenisRef.current = null;
-        }
-        
-        // Unsubscribe from auth
-        if (subscriptionRef.current) {
-          subscriptionRef.current.unsubscribe();
-          subscriptionRef.current = null;
-        }
-      } catch (error) {
-        console.warn('Cleanup error (safe to ignore):', error);
-      }
+      subscription.unsubscribe();
     };
   }, [navigate]);
 
@@ -202,7 +164,7 @@ function WelcomePage() {
     if (isUnmountingRef.current) return;
     
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('user_profiles')
         .upsert({
           id: user.id,
@@ -223,44 +185,32 @@ function WelcomePage() {
   };
 
   const handleLogin = async (e) => {
-  console.log('handleLogin called!', e); // Add this
-  e.preventDefault();
-  
-  console.log('Starting login process...'); // Add this
-  setLoading(true);
-  setError('');
-  setMessage('');
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    setMessage('');
 
-  try {
-    console.log('Attempting to sign in with:', { email, password: '***' }); // Add this
-    const { error } = await supabase.auth.signInWithPassword({ 
-      email, 
-      password 
-    });
-    
-    if (error && !isUnmountingRef.current) {
-      console.log('Login error:', error); // Add this
-      setError(error.message);
-    } else {
-      console.log('Login successful!'); // Add this
-      cleanUpAnimations();
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ 
+        email, 
+        password 
+      });
       
-      // Navigate immediately
-      navigate('/mainpg');
+      if (error && !isUnmountingRef.current) {
+        setError(error.message);
+      } else {
+        navigate('/mainpg');
+      }
+    } catch (err) {
+      if (!isUnmountingRef.current) {
+        setError('An unexpected error occurred. Please try again.');
+      }
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    console.log('Login exception:', err); // Add this
-    if (!isUnmountingRef.current) {
-      setError('An unexpected error occurred. Please try again.');
-    }
-  } finally {
-    setLoading(false);
+  };
 
-  }
-};
   const handleGoogleLogin = async () => {
-    // if (isUnmountingRef.current) return;
-    
     setLoading(true);
     setError('');
     
@@ -268,29 +218,24 @@ function WelcomePage() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/mainpg`
+          redirectTo: `${window.location.origin}/auth/callback`
         }
       });
       
       if (error && !isUnmountingRef.current) {
         setError(error.message);
+        setLoading(false);
       }
     } catch (err) {
       if (!isUnmountingRef.current) {
         setError('An unexpected error occurred. Please try again.');
       }
-    } finally {
-
       setLoading(false);
-
     }
   };
 
   const handleSignupRedirect = (e) => {
     e.preventDefault();
-    cleanUpAnimations();
-    
-    // Navigate immediately
     navigate('/signup');
   };
 
@@ -327,7 +272,7 @@ function WelcomePage() {
   };
 
   return (
-    <>
+    <div ref={containerRef}>
       <section ref={section1Ref} className="section main-content">
         <div className="left">
           <div className="t">
@@ -345,38 +290,30 @@ function WelcomePage() {
         <div className="right">
           <div className="signup-container">
             <div className="signup-card">
-              <h2
-                style={{
-                  color: "var(--orange)",
-                }}
-              >
+              <h2 style={{ color: "var(--orange)" }}>
                 Welcome back!
               </h2>
 
               {message && (
-                <div
-                  style={{
-                    color: "green",
-                    marginBottom: "1rem",
-                    padding: "0.5rem",
-                    backgroundColor: "#e8f5e8",
-                    borderRadius: "4px",
-                  }}
-                >
+                <div style={{
+                  color: "green",
+                  marginBottom: "1rem",
+                  padding: "0.5rem",
+                  backgroundColor: "#e8f5e8",
+                  borderRadius: "4px"
+                }}>
                   {message}
                 </div>
               )}
 
               {error && (
-                <div
-                  style={{
-                    color: "red",
-                    marginBottom: "1rem",
-                    padding: "0.5rem",
-                    backgroundColor: "#fef2f2",
-                    borderRadius: "4px",
-                  }}
-                >
+                <div style={{
+                  color: "red",
+                  marginBottom: "1rem",
+                  padding: "0.5rem",
+                  backgroundColor: "#fef2f2",
+                  borderRadius: "4px"
+                }}>
                   {error}
                 </div>
               )}
@@ -386,7 +323,7 @@ function WelcomePage() {
                   style={{
                     borderRadius: "20px",
                     paddingLeft: "20px",
-                    fontSize: "0.9rem",
+                    fontSize: "0.9rem"
                   }}
                   type="email"
                   value={email}
@@ -399,7 +336,7 @@ function WelcomePage() {
                     borderRadius: "20px",
                     paddingLeft: "20px",
                     marginBottom: "9px",
-                    fontSize: "0.9rem",
+                    fontSize: "0.9rem"
                   }}
                   type="password"
                   value={password}
@@ -419,7 +356,7 @@ function WelcomePage() {
                     fontSize: "0.8rem",
                     marginBottom: "0.8rem",
                     textAlign: "left",
-                    paddingLeft: "10px",
+                    paddingLeft: "10px"
                   }}
                   disabled={loading}
                 >
@@ -429,13 +366,12 @@ function WelcomePage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  onClick={handleLogin}
                   style={{
                     border: "none",
                     borderRadius: "20px",
                     padding: "10px",
                     color: "var(--background-color)",
-                    backgroundColor: "var(--orange)",
+                    backgroundColor: "var(--orange)"
                   }}
                 >
                   {loading ? "Signing in..." : "Sign in"}
@@ -461,26 +397,14 @@ function WelcomePage() {
                   cursor: loading ? "not-allowed" : "pointer",
                   transition: "all 0.2s",
                   marginTop: "1rem",
-                  fontFamily: "Roboto, arial, sans-serif",
+                  fontFamily: "Roboto, arial, sans-serif"
                 }}
               >
                 <svg width="18" height="18" viewBox="0 0 24 24">
-                  <path
-                    fill="#4285f4"
-                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                  />
-                  <path
-                    fill="#34a853"
-                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                  />
-                  <path
-                    fill="#fbbc05"
-                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                  />
-                  <path
-                    fill="#ea4335"
-                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                  />
+                  <path fill="#4285f4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                  <path fill="#34a853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                  <path fill="#fbbc05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                  <path fill="#ea4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                 </svg>
                 {loading ? "Signing in..." : "Sign in with Google"}
               </button>
@@ -492,7 +416,7 @@ function WelcomePage() {
                   style={{
                     color: "var(--blue)",
                     cursor: "pointer",
-                    marginLeft: "0.5rem",
+                    marginLeft: "0.5rem"
                   }}
                 >
                   Sign up
@@ -504,32 +428,22 @@ function WelcomePage() {
 
         <div className="scroll-down-stack">
           <svg className="chevron" viewBox="0 0 24 24">
-            <path
-              d="M6 8l6 6 6-6"
-              fill="none"
-              stroke="#202d7d"
-              strokeWidth="2"
-              strokeLinecap="round"
-            />
+            <path d="M6 8l6 6 6-6" fill="none" stroke="#202d7d" strokeWidth="2" strokeLinecap="round"/>
           </svg>
           <svg className="chevron delay1" viewBox="0 0 24 24">
-            <path
-              d="M6 8l6 6 6-6"
-              fill="none"
-              stroke="#202d7d"
-              strokeWidth="2"
-              strokeLinecap="round"
-            />
+            <path d="M6 8l6 6 6-6" fill="none" stroke="#202d7d" strokeWidth="2" strokeLinecap="round"/>
           </svg>
         </div>
+        <img className='four-pt-flower' src="/four-point-flower.svg" alt="four-point-flower-svg" ref={flower1Ref}/> 
+        <img className='orange-flower' src="/orange-flower.svg" alt="orange-flower-svg" ref={flower2Ref}/> 
       </section>
 
       <section ref={section2Ref} className="section about-us">
-        <div style={{ color: "white", padding: "2rem", textAlign: "center" }}>
-          {/* Optional additional content */}
-        </div>
+        <h1>
+          
+        </h1>
       </section>
-    </>
+    </div>
   );
 }
 

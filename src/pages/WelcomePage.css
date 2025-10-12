@@ -22,6 +22,9 @@
   box-sizing: border-box;
 }
 
+
+
+
 /* More specific body styling to override other modules */
 body {
   background-color: var(--background-color) !important;
@@ -229,4 +232,17 @@ body {
     transform: translateY(0); 
     opacity: 0.3; 
   }
+}
+
+.four-pt-flower{
+  position: absolute;
+  top: 2rem;
+  height: 4rem;
+}
+
+.orange-flower{
+  position: absolute;
+  top: 5.5rem;
+  left: 3rem;
+  height: 5rem;
 }
