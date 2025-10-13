@@ -22,7 +22,16 @@ function App() {
   
   useEffect(() => {
     try{
-      resetCursor();
+      gsap.to(cursor.current, {
+        width: 15,
+        height: 15,
+        backgroundColor: "rgb(255, 255, 255)",
+        borderWidth: 0,
+        borderRadius: "50%",
+        duration: properties.duration || 0.2,
+        ease: properties.ease || "power2.inOut",
+        transform: cursorRef.current.transform
+      });
     }
     catch(e){
       alert(e);
