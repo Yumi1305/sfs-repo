@@ -19,15 +19,15 @@ import Tutor from './pages/customer/Tutoring'
 function App() {
   const cursor = useRef();
   const location = useLocation();
-  if(cursor.current){
+
+  useEffect(() => {
+      if(cursor.current){
     cursor.current.style.width = 15;
     cursor.current.style.height = 15;
     cursor.current.style.backgroundColor = "rgb(255, 255, 255)";
     cursor.current.style.borderWidth = 0;
     cursor.current.style.borderRadius = "50%";
   }
-  useEffect(() => {
-        
     const handleMouseMove = (e) => {
       if (cursor.current) {
         cursor.current.style.left = `${e.clientX}px`;
