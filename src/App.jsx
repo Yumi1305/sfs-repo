@@ -21,6 +21,7 @@ function App() {
   const location = useLocation();
   
   useEffect(() => {
+    alert();
     try{
       if(cursor.current){
       cursor.current.style.width = 15;
