@@ -39,8 +39,8 @@ function App() {
           setCursorReset(false);
         }
         }
-        catch(e){
-          alert(e);
+        catch(f){
+          alert(f);
         }
       }
     };
