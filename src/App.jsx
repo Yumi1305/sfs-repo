@@ -22,9 +22,12 @@ function App() {
 
   useEffect(() => {
 
-    alert('test');
-    
-    resetCursor();
+    try{
+      resetCursor();
+    }
+    catch(e){
+      alert(e);
+    }
     
     return () => {
       
