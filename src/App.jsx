@@ -29,6 +29,7 @@ function App() {
         cursor.current.style.left = `${e.clientX}px`;
         cursor.current.style.top = `${e.clientY}px`; 
         try{
+          alert(cursorReset);
         if(cursorReset){
           cursor.current.style.width = 15;
           cursor.current.style.height = 15;
