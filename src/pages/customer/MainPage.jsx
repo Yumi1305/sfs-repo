@@ -49,7 +49,7 @@ function MainPage() {
     }
 
     // Check if this is a new user sign-in (different from last user)
-    const isNewSignIn = lastUserId.current !== user.id;
+    let isNewSignIn = lastUserId.current !== user.id;
     
     // Update the last user ID
     lastUserId.current = user.id;
