@@ -19,7 +19,7 @@ import Tutor from './pages/customer/Tutoring'
 function App() {
   const cursor = useRef();
   const location = useLocation();
-  const { cursorReset, setCursorReset } = useState(false);
+  const [cursorReset, setCursorReset] = useState(false);
   
   useEffect(() => {
     setCursorReset(true);
