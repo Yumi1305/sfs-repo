@@ -22,15 +22,10 @@ function App() {
   const [cursorReset, setCursorReset] = useState(false);
   
   useEffect(() => {
-    try{
     setCursorReset(true);
-      alert(cursorReset);
-    }
-    catch(e){
-      alert(e);
-    }
         
     const handleMouseMove = (e) => {
+      alert(cursorReset);
       if (cursor.current) {
         alert(cursorReset);
         cursor.current.style.left = `${e.clientX}px`;
@@ -58,7 +53,7 @@ function App() {
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
     };
-  }, [location]);
+  }, [location, cursorReset]);
   return (
     <UserProvider>
     <CursorProvider>
