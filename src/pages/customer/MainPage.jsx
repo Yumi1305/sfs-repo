@@ -17,7 +17,6 @@ import { fetchAuthorInfo } from "../../services/wordpressapi";
 
 function MainPage() {
   const { courseList, loading, users } = useCourses();
-  const [showLoader, setShowLoader] = useState(true);
   const [fadeOut, setFadeOut] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -41,6 +40,8 @@ function MainPage() {
     clearError
   } = useUserContext();
 
+  const [showLoader, setShowLoader] = useState(loading);
+  
   // Show welcome modal ONLY on fresh sign-in
   useEffect(() => {
     // Only proceed if we have user data and it's not loading

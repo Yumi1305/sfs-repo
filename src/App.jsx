@@ -6,6 +6,7 @@ import CoursePage from './pages/customer/CoursePage'
 import Favorites from './pages/customer/Favorites'
 import { useEffect, useRef } from 'react'
 import { CourseProvider } from './contexts/CourseContext'
+import { CourseStorageProvider } from './contexts/CourseStorageContext'
 import { useCursor } from './contexts/CursorContext'
 import MyCourses from './pages/customer/MyCourses'
 import Donations from './pages/customer/Donations'
@@ -33,6 +34,7 @@ function App() {
   return (
     <UserProvider>
     <CourseProvider>
+    <CourseStorageProvider>
       <Routes>
         <Route path="/" element={<WelcomePage />} />
         <Route path="/mainpg" element={
@@ -62,6 +64,7 @@ function App() {
         <Route path='/reset-password' element={<ResetPasswordPage/>}/>
 
       </Routes>
+    </CourseStorageProvider>
     </CourseProvider>
     </UserProvider>
   );

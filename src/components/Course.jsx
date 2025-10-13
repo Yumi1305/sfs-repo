@@ -8,6 +8,7 @@ import { useCursor } from "../contexts/CursorContext";
 import { fetchSingleCourse, fetchCourseTopics } from "../services/wordpressapi";
 import { prettierWord } from "../services/helpers";
 import { useUserContext } from "../hooks/useUserContext";
+import { useCourseStorage } from "../contexts/CourseStorageContext";
 
 function Course({ course, onFavoriteChange, onEnrolledChange, showProgress = false }) {
   const [showRemoveModal, setShowRemoveModal] = useState(false);
@@ -16,6 +17,7 @@ function Course({ course, onFavoriteChange, onEnrolledChange, showProgress = fal
   const [actionLoading, setActionLoading] = useState(false);
   const location = useLocation();
   const { hover, resetCursor } = useCursor();
+  const { addLoadedCourse, getLoadedCourse } = useCourseStorage();
   
   // Use UserContext
   const {
@@ -38,6 +40,7 @@ function Course({ course, onFavoriteChange, onEnrolledChange, showProgress = fal
       try {
         const details = await fetchSingleCourse(course.ID);
         setCourseDetails(details.data);
+        addLoadedCourse(course.ID, details.data);
       } catch (error) {
         console.error("Couldn't get course details:", error);
       } finally {
@@ -56,6 +59,11 @@ function Course({ course, onFavoriteChange, onEnrolledChange, showProgress = fal
       }
     };
 
+    const courseLoadedData = getLoadedCourse(course.ID);
+    if(courseLoadedData){
+      setCourseDetails(courseLoadedData);
+      setDetailsLoading(false);
+    }
     fetchCourseDetails();
     getCourseTopics();
   }, [course.ID]);
