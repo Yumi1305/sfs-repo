@@ -3,6 +3,7 @@
   --orange: #ff845e;
   --blue: #3589e8;
   --dark-blue: #113197;
+  --header: #242c44;
 }
 
 @font-face {
@@ -48,8 +49,8 @@ body {
 }
 
 .about-us {
-  height: 100vh;
-  background-color: #f6f3f0;
+  height: 200vh;
+  background-color: var(--background-color);
   z-index: 2;
   position: relative;
 }
@@ -245,4 +246,108 @@ body {
   top: 5.5rem;
   left: 3rem;
   height: 5rem;
+}
+
+span{
+  all: unset;
+}
+
+.section.about-us{
+  padding-top: 4rem;
+  padding-right: 4rem;
+}
+
+.mission {
+  display: flex;
+  gap: 40px;
+  align-items: center;
+  padding: 100px 0px;
+  padding-left: 60px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.mission .left {
+  max-width: 800px;
+  flex: 1.5;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.mission-header {
+  font-size: 3.5rem;
+  font-weight: 800;
+  margin-bottom: 30px;
+  line-height: 1.1;
+  color: var(--header);
+  letter-spacing: -0.02em;
+  width: 100%;
+}
+
+.mission-header span {
+  color: var(--orange);
+  font-weight: 800;
+}
+
+.mission-desc {
+  font-size: 1.15rem;
+  line-height: 1.8;
+  color: var(--text-secondary, #666);
+  font-weight: 400;
+  margin-top: 30px;
+  width: 80%;
+}
+
+.right-pictures {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.classroom-img {
+  background-image: url(/src/images/classroom-img.jpg);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  height: 450px;
+  width: 450px;
+  border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.15);
+  animation: morph 8s ease-in-out infinite;
+}
+
+@keyframes morph {
+  0%, 100% {
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  }
+  50% {
+    border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+  }
+}
+
+/* Responsive */
+@media (max-width: 968px) {
+  .mission {
+    flex-direction: column;
+    padding: 60px 30px;
+    gap: 50px;
+  }
+  
+  .mission-header {
+    font-size: 2.5rem;
+  }
+  
+  .classroom-img {
+    height: 350px;
+    width: 350px;
+  }
+}
+
+.card-img{
+  height: 100px;
+  width: 100px;
+  background-position: center;
+  background-size: cover;
 }

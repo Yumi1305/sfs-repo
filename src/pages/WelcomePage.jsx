@@ -1,4 +1,5 @@
 import '../pages/WelcomePage.css';
+import classroomImage from '../images/classroom-img.jpg'
 import Lenis from '@studio-freight/lenis';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
@@ -97,31 +98,31 @@ function WelcomePage() {
   }, { scope: containerRef }); // useGSAP auto-cleans up all animations in this scope
 
   // Handle Lenis smooth scrolling
-  useEffect(() => {
-    lenisRef.current = new Lenis({
-      duration: 1,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      smooth: true,
-    });
+  // useEffect(() => {
+  //   lenisRef.current = new Lenis({
+  //     duration: 1,
+  //     easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+  //     smooth: true,
+  //   });
 
-    function raf(time) {
-      if (lenisRef.current && !isUnmountingRef.current) {
-        lenisRef.current.raf(time);
-        requestAnimationFrame(raf);
-      }
-    }
-    requestAnimationFrame(raf);
+  //   function raf(time) {
+  //     if (lenisRef.current && !isUnmountingRef.current) {
+  //       lenisRef.current.raf(time);
+  //       requestAnimationFrame(raf);
+  //     }
+  //   }
+  //   requestAnimationFrame(raf);
     
-    lenisRef.current.on('scroll', ScrollTrigger.update);
+  //   lenisRef.current.on('scroll', ScrollTrigger.update);
 
-    return () => {
-      isUnmountingRef.current = true;
-      if (lenisRef.current) {
-        lenisRef.current.destroy();
-        lenisRef.current = null;
-      }
-    };
-  }, []);
+  //   return () => {
+  //     isUnmountingRef.current = true;
+  //     if (lenisRef.current) {
+  //       lenisRef.current.destroy();
+  //       lenisRef.current = null;
+  //     }
+  //   };
+  // }, []);
 
   // Handle auth state and check existing session
   useEffect(() => {
@@ -218,7 +219,7 @@ function WelcomePage() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`
+          redirectTo: `${window.location.origin}/mainpg`
         }
       });
       
@@ -271,6 +272,28 @@ function WelcomePage() {
     }
   };
 
+const cardInfo = [
+  {
+    id: 1, 
+    title: "Tutoring", 
+    image: "https://i.pinimg.com/736x/82/34/4c/82344c2bee59fa154ef7d7e3c79bc7b8.jpg"
+  },
+  {
+    id: 2,
+    title: "Courses",
+    image: "https://i.pinimg.com/1200x/08/99/7c/08997cd0a65a928c85b4d85b0e9dbdb7.jpg"
+  },
+  {
+    id: 3,
+    title: "Verification",
+    image: "https://i.pinimg.com/1200x/51/e6/88/51e6886bc430a322751635f17d3a1880.jpg"
+  },
+  {
+    id: 4,
+    title: "Nonprofit Status",
+    image: "https://i.pinimg.com/1200x/72/03/56/720356c9e5817aa313ab5382ea4089f7.jpg"
+  }
+]
   return (
     <div ref={containerRef}>
       <section ref={section1Ref} className="section main-content">
@@ -439,9 +462,46 @@ function WelcomePage() {
       </section>
 
       <section ref={section2Ref} className="section about-us">
-        <h1>
-          
-        </h1>
+        <div className='mission'>
+          <div className='left'>
+            <h1 className='mission-header'>Making high-quality education available to everyone, <span>everwhere</span></h1>
+            <p className='mission-desc'>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>   
+          </div>
+          <div className='right-pictures'>
+            <div className='classroom-img'></div>
+          </div> 
+        </div>   
+
+        <div className='features'>
+          <h1>Features</h1>
+          <div className="horizontal-scroll-container">
+            {cardInfo.map((course) => {
+              return(
+                <div key={course.id}>
+                <div>{course.title}</div>
+                <div className='card-img' style={{backgroundImage: `url(${course.image})`}}></div>
+                </div>
+              )
+            }
+          )}
+            {/* <div className='card'>
+              <div>Tutoring</div>
+              <div className='card-img'></div>
+            </div>
+            <div className='card'>
+              <div>Courses</div>
+              <div className='card-img'></div>
+            </div>
+            <div className='card'>
+              <div>Verification</div>
+              <div className='card-img'></div>
+            </div>
+            <div className='card'>
+              <div>Nonprofit</div>
+              <div className='card-img'></div>
+            </div> */}
+          </div>
+        </div>  
       </section>
     </div>
   );
