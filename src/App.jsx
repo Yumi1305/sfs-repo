@@ -23,6 +23,7 @@ function App() {
   useEffect(() => {
     alert();
     try{
+      alert(cursor.current);
       if(cursor.current){
       cursor.current.style.width = 15;
       cursor.current.style.height = 15;
