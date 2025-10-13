@@ -36,7 +36,6 @@ function App() {
     };
   }, []);
   return (
-    <BrowserRouter>
     <UserProvider>
     <CursorProvider>
     <CourseProvider>
@@ -72,7 +71,6 @@ function App() {
     </CourseProvider>
     </CursorProvider>
     </UserProvider>
-    </BrowserRouter>
   );
 }
 
