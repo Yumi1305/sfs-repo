@@ -4,7 +4,7 @@ import MainPage from './pages/customer/MainPage'
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import CoursePage from './pages/customer/CoursePage'
 import Favorites from './pages/customer/Favorites'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { CourseProvider } from './contexts/CourseContext'
 import MyCourses from './pages/customer/MyCourses'
 import Donations from './pages/customer/Donations'
@@ -19,19 +19,14 @@ import Tutor from './pages/customer/Tutoring'
 function App() {
   const cursor = useRef();
   const location = useLocation();
-  const [cursorReset, setCursorReset] = useState(false);
-  if(cursorReset){
-    if(cursor.current){
-      cursor.current.style.width = 15;
-      cursor.current.style.height = 15;
-      cursor.current.style.backgroundColor = "rgb(255, 255, 255)";
-      cursor.current.style.borderWidth = 0;
-      cursor.current.style.borderRadius = "50%";
-      setCursorReset(false);
-    }
+  if(cursor.current){
+    cursor.current.style.width = 15;
+    cursor.current.style.height = 15;
+    cursor.current.style.backgroundColor = "rgb(255, 255, 255)";
+    cursor.current.style.borderWidth = 0;
+    cursor.current.style.borderRadius = "50%";
   }
   useEffect(() => {
-    setCursorReset(true);
         
     const handleMouseMove = (e) => {
       if (cursor.current) {
