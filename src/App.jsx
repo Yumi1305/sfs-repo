@@ -22,6 +22,8 @@ function App() {
 
   useEffect(() => {
 
+    alert('test');
+    
     resetCursor();
     
     return () => {
