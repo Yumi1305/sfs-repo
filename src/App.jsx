@@ -21,9 +21,7 @@ function App() {
   const location = useLocation();
   
   useEffect(() => {
-    if (cursor.current){
-      resetCursor();
-    }
+    alert();
     
     const handleMouseMove = (e) => {
       if (cursor.current) {
