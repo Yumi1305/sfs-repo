@@ -1,7 +1,7 @@
 import './App.css'
 import WelcomePage from './pages/WelcomePage'
 import MainPage from './pages/customer/MainPage'
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import CoursePage from './pages/customer/CoursePage'
 import Favorites from './pages/customer/Favorites'
 import { useEffect, useRef } from 'react'
@@ -18,12 +18,8 @@ import Tutor from './pages/customer/Tutoring'
 
 function App() {
   const cursor = useRef();
-  const location = useLocation();
   
   useEffect(() => {
-    if (cursor.current) {
-      resetCursor();
-    }
     
     const handleMouseMove = (e) => {
       if (cursor.current) {
@@ -38,7 +34,7 @@ function App() {
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
     };
-  }, [location]);
+  }, []);
   return (
     <BrowserRouter>
     <UserProvider>
