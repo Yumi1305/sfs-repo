@@ -19,6 +19,7 @@ import Tutor from './pages/customer/Tutoring'
 function App() {
 
   const {hover, resetCursor} = useCursor();
+  hover();
 
   useEffect(() => {
 
