@@ -22,11 +22,13 @@ function App() {
   
   useEffect(() => {
     try{
+      if(cursor.current){
       cursor.current.style.width = 15;
       cursor.current.style.height = 15;
       cursor.current.style.backgroundColor = "rgb(255, 255, 255)";
       cursor.current.style.borderWidth = 0;
       cursor.current.style.borderRadius = "50%";
+      }
     }
     catch(e){
       alert(e);
