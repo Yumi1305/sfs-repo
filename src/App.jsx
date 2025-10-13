@@ -6,6 +6,7 @@ import CoursePage from './pages/customer/CoursePage'
 import Favorites from './pages/customer/Favorites'
 import { useEffect, useRef } from 'react'
 import { CourseProvider } from './contexts/CourseContext'
+import { useCursor } from './contexts/CursorContext'
 import MyCourses from './pages/customer/MyCourses'
 import Donations from './pages/customer/Donations'
 import SignupPage from './pages/SignupPage'
@@ -16,6 +17,17 @@ import Settings from './pages/customer/Settings'
 import Tutor from './pages/customer/Tutoring'
 
 function App() {
+
+  const {hover, resetCursor} = useCursor();
+
+  useEffect(() => {
+
+    resetCursor();
+    
+    return () => {
+      
+    };
+  }, [location]);
   
   return (
     <UserProvider>
