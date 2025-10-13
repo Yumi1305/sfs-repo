@@ -20,30 +20,23 @@ function App() {
   const cursor = useRef();
   const location = useLocation();
   const [cursorReset, setCursorReset] = useState(false);
-  
+  if(cursorReset){
+    if(cursor.current){
+      cursor.current.style.width = 15;
+      cursor.current.style.height = 15;
+      cursor.current.style.backgroundColor = "rgb(255, 255, 255)";
+      cursor.current.style.borderWidth = 0;
+      cursor.current.style.borderRadius = "50%";
+      setCursorReset(false);
+    }
+  }
   useEffect(() => {
     setCursorReset(true);
         
     const handleMouseMove = (e) => {
-      alert(cursorReset);
       if (cursor.current) {
-        alert(cursorReset);
         cursor.current.style.left = `${e.clientX}px`;
         cursor.current.style.top = `${e.clientY}px`; 
-        // try{
-        //   alert(cursorReset);
-        // if(cursorReset){
-        //   cursor.current.style.width = 15;
-        //   cursor.current.style.height = 15;
-        //   cursor.current.style.backgroundColor = "rgb(255, 255, 255)";
-        //   cursor.current.style.borderWidth = 0;
-        //   cursor.current.style.borderRadius = "50%";
-        //   setCursorReset(false);
-        // }
-        // }
-        // catch(f){
-        //   alert(f);
-        // }
       }
     };
 
