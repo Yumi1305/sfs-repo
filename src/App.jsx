@@ -28,6 +28,7 @@ function App() {
       if (cursor.current) {
         cursor.current.style.left = `${e.clientX}px`;
         cursor.current.style.top = `${e.clientY}px`; 
+        try{
         if(cursorReset){
           cursor.current.style.width = 15;
           cursor.current.style.height = 15;
@@ -35,6 +36,10 @@ function App() {
           cursor.current.style.borderWidth = 0;
           cursor.current.style.borderRadius = "50%";
           setCursorReset(false);
+        }
+        }
+        catch(e){
+          alert(e);
         }
       }
     };
