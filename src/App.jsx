@@ -53,7 +53,7 @@ function App() {
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
     };
-  }, [location, cursorReset]);
+  }, [location]);
   return (
     <UserProvider>
     <CursorProvider>
