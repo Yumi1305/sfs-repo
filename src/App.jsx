@@ -18,18 +18,13 @@ import Tutor from './pages/customer/Tutoring'
 
 function App() {
 
-  const {hover, resetCursor} = useCursor();
-  hover();
-
+  const { resetCursor } = useCursor();
+  const location = useLocation();
+ 
   useEffect(() => {
 
-    try{
-      resetCursor();
-    }
-    catch(e){
-      alert(e);
-    }
-    
+    resetCursor();
+
     return () => {
       
     };
