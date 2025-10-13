@@ -24,6 +24,7 @@ function App() {
   useEffect(() => {
     try{
     setCursorReset(true);
+      alert(cursorReset);
     }
     catch(e){
       alert(e);
