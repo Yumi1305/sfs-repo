@@ -28,7 +28,7 @@ export default function CoursePage() {
   
   const course = courseList.find((c) => String(c.ID) === id);
   const [Favorited, setFavorited] = useState(false);
-  const [showLoading, setShowLoading] = useState(true);
+  const [showLoading, setShowLoading] = useState(loading);
   const [fadeOut, setFadeOut] = useState(false);
   const [enrolled, setEnrolled] = useState(false);
   const [showEnrolledMessage, setShowEnrolledMessage] = useState(false);
