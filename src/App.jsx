@@ -1,14 +1,15 @@
 import './App.css'
 import WelcomePage from './pages/WelcomePage'
 import MainPage from './pages/customer/MainPage'
-import { BrowserRouter, Routes, Route} from 'react-router-dom'
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import CoursePage from './pages/customer/CoursePage'
 import Favorites from './pages/customer/Favorites'
 import { useEffect, useRef } from 'react'
 import { CourseProvider } from './contexts/CourseContext'
+import { CourseStorageProvider } from './contexts/CourseStorageContext'
+import { useCursor } from './contexts/CursorContext'
 import MyCourses from './pages/customer/MyCourses'
 import Donations from './pages/customer/Donations'
-import { CursorProvider } from './contexts/CursorContext'
 import SignupPage from './pages/SignupPage'
 import { UserProvider } from './contexts/UserContext'
 import ProtectedRoute from './components/ProtectedRoute'
@@ -17,29 +18,23 @@ import Settings from './pages/customer/Settings'
 import Tutor from './pages/customer/Tutoring'
 
 function App() {
-  const cursor = useRef();
-  
-  
+
+  const { resetCursor } = useCursor();
+  const location = useLocation();
+ 
   useEffect(() => {
-    const handleMouseMove = (e) => {
-      if (cursor.current) {
-        cursor.current.style.left = `${e.clientX}px`;
-        cursor.current.style.top = `${e.clientY}px`; 
-      }
-    };
 
-    document.addEventListener('mousemove', handleMouseMove);
+    resetCursor();
 
-    // Cleanup
     return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
+      
     };
-  }, []);
+  }, [location]);
+  
   return (
-    <BrowserRouter>
     <UserProvider>
-    <CursorProvider>
     <CourseProvider>
+    <CourseStorageProvider>
       <Routes>
         <Route path="/" element={<WelcomePage />} />
         <Route path="/mainpg" element={
@@ -70,10 +65,9 @@ function App() {
         <Route path='/reset-password' element={<ResetPasswordPage/>}/>
 
       </Routes>
+    </CourseStorageProvider>
     </CourseProvider>
-    </CursorProvider>
     </UserProvider>
-    </BrowserRouter>
   );
 }
 
