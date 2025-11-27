@@ -20,6 +20,9 @@ function WelcomePage() {
   const containerRef = useRef(null);
   const flower1Ref = useRef(null);
   const flower2Ref = useRef(null)
+
+  const featuresRef = useRef(null);
+  const horizontalRef = useRef(null);
   const navigate = useNavigate();
   
   const [email, setEmail] = useState('');
@@ -31,71 +34,91 @@ function WelcomePage() {
   const lenisRef = useRef(null);
   const isUnmountingRef = useRef(false);
 
-  // Handle all GSAP animations with automatic cleanup
-  useGSAP(() => {
-    // Blinker animation
-    if (flower1Ref.current){
-      gsap.to(flower1Ref.current, {
-        rotation: 360, 
-        duration: 2, 
-        ease: 'power2.inOut', 
-        repeat: -1, 
-        yoyo: true
-      });
-    }
-    if (flower2Ref.current){
-      gsap.to(flower2Ref.current, {
-        scale: 1.2, 
-        duration: 2, 
-        ease: 'power1.inOut', 
-        repeat: -1, 
-        yoyo: true
-      })
-    }
-    if (blinkerRef.current) {
-      gsap.to(blinkerRef.current, {
-        opacity: 0,
-        duration: 0.8,
-        repeat: -1,
-        yoyo: true,
-        ease: "power2.inOut"
-      });
-    }
 
-    // ScrollTrigger animation
-    if (section1Ref.current && section2Ref.current) {
-      gsap.set(section2Ref.current, { yPercent: 100 });
-      gsap.to(section2Ref.current, {
-        yPercent: 0,
-        ease: "ease-in",
-        scrollTrigger: {
-          trigger: section1Ref.current,
-          start: "top top",
-          end: "top bottom",
-          scrub: 1,
-          pin: section1Ref.current,
-          pinSpacing: true,
-          markers: false
+useGSAP(() => {
+  // Flower animations
+  if (flower1Ref.current) {
+    gsap.to(flower1Ref.current, {
+      rotation: 360, 
+      duration: 2, 
+      ease: 'power2.inOut', 
+      repeat: -1, 
+      yoyo: true
+    });
+  }
+  
+  if (flower2Ref.current) {
+    gsap.to(flower2Ref.current, {
+      scale: 1.2, 
+      duration: 2, 
+      ease: 'power1.inOut', 
+      repeat: -1, 
+      yoyo: true
+    });
+  }
+
+  // Blinker
+  if (blinkerRef.current) {
+    gsap.to(blinkerRef.current, {
+      opacity: 0,
+      duration: 0.8,
+      repeat: -1,
+      yoyo: true,
+      ease: "power2.inOut"
+    });
+  }
+
+  // Section scroll animation
+  if (section1Ref.current && section2Ref.current) {
+    gsap.set(section2Ref.current, { yPercent: 100 });
+    gsap.to(section2Ref.current, {
+      yPercent: 0,
+      ease: "ease-in",
+      scrollTrigger: {
+        trigger: section1Ref.current,
+        start: "top top",
+        end: "top bottom",
+        scrub: 1,
+        pin: section1Ref.current,
+        pinSpacing: true,
+        markers: false
+      }
+    });
+  }
+
+  // Text animation
+  if (textRef.current) {
+    const masterTl = gsap.timeline({ repeat: -1 });
+    words.forEach((word) => {
+      const tlText = gsap.timeline({ repeat: 1, yoyo: true, repeatDelay: 1.5 });
+      tlText.to(textRef.current, {
+        duration: 1,
+        text: {
+          value: word,
+          delimiter: ""
         }
       });
-    }
+      masterTl.add(tlText);
+    });
+  }
 
-    // Text animation
-    if (textRef.current) {
-      const masterTl = gsap.timeline({ repeat: -1 });
-      words.forEach((word) => {
-        const tlText = gsap.timeline({ repeat: 1, yoyo: true, repeatDelay: 1.5 });
-        tlText.to(textRef.current, {
-          duration: 1,
-          text: {
-            value: word,
-            delimiter: ""
-          }
-        });
-        masterTl.add(tlText);
-      });
-    }
-  }, { scope: containerRef }); // useGSAP auto-cleans up all animations in this scope
+  // HORIZONTAL SCROLL - moved here
+  const cards = gsap.utils.toArray('.card');
+  if (cards.length > 0 && horizontalRef.current) {
+    gsap.to(cards, {
+      xPercent: -100 * (cards.length - 1), 
+      ease: "none", 
+      scrollTrigger: {
+        trigger: horizontalRef.current,
+        start: "top top",
+        pin: true,
+        scrub: 1,
+        snap: 1 / (cards.length - 1),
+        end: () => "+=" + (cards.length * window.innerWidth)
+      }
+    });
+  }
+}, { scope: containerRef }); // Single scope for everything
 
   // Handle Lenis smooth scrolling
   // useEffect(() => {
@@ -276,26 +299,33 @@ const cardInfo = [
   {
     id: 1, 
     title: "Tutoring", 
-    image: "https://i.pinimg.com/736x/82/34/4c/82344c2bee59fa154ef7d7e3c79bc7b8.jpg"
+    image: "https://i.pinimg.com/1200x/61/be/91/61be91fd470e9046c9ecb06182923aa1.jpg", 
+    desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud"
   },
   {
     id: 2,
     title: "Courses",
-    image: "https://i.pinimg.com/1200x/08/99/7c/08997cd0a65a928c85b4d85b0e9dbdb7.jpg"
+    image: "https://i.pinimg.com/1200x/08/99/7c/08997cd0a65a928c85b4d85b0e9dbdb7.jpg", 
+    desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud"
+
   },
   {
     id: 3,
     title: "Verification",
-    image: "https://i.pinimg.com/1200x/51/e6/88/51e6886bc430a322751635f17d3a1880.jpg"
+    image: "https://i.pinimg.com/1200x/51/e6/88/51e6886bc430a322751635f17d3a1880.jpg",
+    desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud"
+
   },
   {
     id: 4,
     title: "Nonprofit Status",
-    image: "https://i.pinimg.com/1200x/72/03/56/720356c9e5817aa313ab5382ea4089f7.jpg"
+    image: "https://i.pinimg.com/1200x/72/03/56/720356c9e5817aa313ab5382ea4089f7.jpg", 
+    desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud"
+
   }
 ]
   return (
-    <div ref={containerRef}>
+    <div className="container" ref={containerRef}>
       <section ref={section1Ref} className="section main-content">
         <div className="left">
           <div className="t">
@@ -461,8 +491,7 @@ const cardInfo = [
         <img className='orange-flower' src="/orange-flower.svg" alt="orange-flower-svg" ref={flower2Ref}/> 
       </section>
 
-      <section ref={section2Ref} className="section about-us">
-        <div className='mission'>
+      <section ref={section2Ref} className=" mission">
           <div className='left'>
             <h1 className='mission-header'>Making high-quality education available to everyone, <span>everwhere</span></h1>
             <p className='mission-desc'>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>   
@@ -470,39 +499,28 @@ const cardInfo = [
           <div className='right-pictures'>
             <div className='classroom-img'></div>
           </div> 
-        </div>   
+      </section>
 
-        <div className='features'>
-          <h1>Features</h1>
-          <div className="horizontal-scroll-container">
+      <div className='features' ref={featuresRef}>
+          <h1 style={{width: '100%', textAlign: 'center', fontSize: '6rem'}}>Features</h1>
+          <div className="horizontal-scroll-container" ref={horizontalRef}>
+            <div className='cards-wrapper'>
             {cardInfo.map((course) => {
               return(
-                <div key={course.id}>
-                <div>{course.title}</div>
-                <div className='card-img' style={{backgroundImage: `url(${course.image})`}}></div>
+                <div className="card" key={course.id}>
+                  <div className='card-desc'>
+                  <h1>{course.title}</h1>
+                  <p>{course.desc}</p>
+                  </div>
+                  <div className='card-img' style={{backgroundImage: `url(${course.image})`}}></div>
                 </div>
               )
             }
           )}
-            {/* <div className='card'>
-              <div>Tutoring</div>
-              <div className='card-img'></div>
-            </div>
-            <div className='card'>
-              <div>Courses</div>
-              <div className='card-img'></div>
-            </div>
-            <div className='card'>
-              <div>Verification</div>
-              <div className='card-img'></div>
-            </div>
-            <div className='card'>
-              <div>Nonprofit</div>
-              <div className='card-img'></div>
-            </div> */}
+          </div>
+           
           </div>
         </div>  
-      </section>
     </div>
   );
 }

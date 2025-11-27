@@ -30,7 +30,7 @@ export const getLink = (htmlString, courseTopics) => {
     .replace(/\s+/g, "-") 
     .replace(/-+/g, "-");    
 
-  return `https://wordpress-1494981-5707436.cloudwaysapps.com/courses/${s}/lessons/${courseTopics[1].post_name}`
+  return `https://wordpress-1494981-5707436.cloudwaysapps.com/courses/${s}/lessons/${courseTopics[0].post_name}`
   
 }
 

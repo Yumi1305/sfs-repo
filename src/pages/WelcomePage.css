@@ -16,7 +16,7 @@
   src: url('../fonts/Satoshi-Variable.ttf') format('truetype');
 }
 
-/* Remove !important from universal selector - it's too aggressive */
+
 * {
   margin: 0;
   padding: 0;
@@ -36,6 +36,8 @@ body {
   padding: 0 !important;
 }
 
+
+
 .section {
   height: 100vh;
   width: 100vw;
@@ -48,12 +50,6 @@ body {
   z-index: 1;
 }
 
-.about-us {
-  height: 200vh;
-  background-color: var(--background-color);
-  z-index: 2;
-  position: relative;
-}
 
 .section .left {
   height: 100%;
@@ -252,19 +248,26 @@ span{
   all: unset;
 }
 
-.section.about-us{
-  padding-top: 4rem;
-  padding-right: 4rem;
+.section{
+  box-sizing: border-box;
 }
 
+/* Remove redundant .section.about-us, use only .mission for section 2 */
 .mission {
+  box-sizing: border-box;
+  padding-top: 4rem;
+  min-height: 100vh;
+  background-color: var(--background-color);
+  z-index: 2;
+  position: relative;
   display: flex;
   gap: 40px;
   align-items: center;
-  padding: 100px 0px;
-  padding-left: 60px;
+  padding: 100px 60px;
+  padding-bottom: 200px;
   max-width: 1400px;
-  margin: 0 auto;
+  /* margin: 2rem auto 0 auto; */
+  flex-wrap: wrap;
 }
 
 .mission .left {
@@ -307,6 +310,7 @@ span{
 }
 
 .classroom-img {
+  /* margin-right: 2rem; */
   background-image: url(/src/images/classroom-img.jpg);
   background-position: center;
   background-repeat: no-repeat;
@@ -314,7 +318,7 @@ span{
   height: 450px;
   width: 450px;
   border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
-  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 25px 70px rgba(255, 255, 255, 0.15);
   animation: morph 8s ease-in-out infinite;
 }
 
@@ -344,10 +348,54 @@ span{
     width: 350px;
   }
 }
+.features {
+  /* border: 1px solid black; */
+  overflow: hidden;
+  min-height: 100vh;
+  padding-top: 4rem;
+  background-color: var(--background-color);
+}
 
-.card-img{
-  height: 100px;
-  width: 100px;
+.horizontal-scroll-container {
+  overflow: hidden;
+  position: relative;
+  height: 100vh; /* Add explicit height */
+}
+
+.cards-wrapper {
+  display: flex;
+  width: fit-content;
+  height: 100%;
+}
+
+.card {
+  /* border: 1px black solid; */
+  height: 100vh;
+  min-width: 100vw;
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  gap: 3rem;
+  padding: 0rem 3rem;
+  flex-shrink: 0;
+}
+.card .card-img {
+  flex: 0.8;
+  height: 80%;
   background-position: center;
   background-size: cover;
+  background-repeat: no-repeat;
+  border-radius: 20px;
+}
+
+.card .card-desc {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.3rem;
+}
+
+.card h1 {
+  font-size: 3.5rem;
+  color: rgb(46, 46, 94);
 }
