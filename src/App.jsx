@@ -38,25 +38,25 @@ function App() {
       <Routes>
         <Route path="/" element={<WelcomePage />} />
         <Route path="/mainpg" element={
-          // <ProtectedRoute>
+          <ProtectedRoute>
             <MainPage />
-            // </ProtectedRoute>
+            </ProtectedRoute>
           } />
         <Route path="/course/:id" element={
-          // <ProtectedRoute>
+          <ProtectedRoute>
           <CoursePage />
-          // </ProtectedRoute>
+          </ProtectedRoute>
         }
            />
         <Route path="/favorites" element={
-          // <ProtectedRoute>
+          <ProtectedRoute>
           <Favorites />
-          // </ProtectedRoute>
+          </ProtectedRoute>
           } />
         <Route path='/my-courses' element={
-          // <ProtectedRoute>
+          <ProtectedRoute>
           <MyCourses/>
-          // </ProtectedRoute>
+          </ProtectedRoute>
           }/>
         <Route path='/settings' element={<Settings/>}/>
         <Route path='/donate' element={<Donations/>}/>

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback } from 'react';
 import styles from './UploadMaterialModal.module.css';
-import { X, Upload, FileText, Link as LinkIcon, Youtube, File, CheckCircle, AlertCircle } from 'lucide-react';
+import { X, Upload, FileText, Link as LinkIcon, Youtube, File, CheckCircle, AlertCircle, Image, Trash2 } from 'lucide-react';
 
 const SUBJECTS = [
   'Math',
@@ -45,12 +45,16 @@ function UploadMaterialModal({ isOpen, onClose, onSubmit }) {
   const [selectedSubjects, setSelectedSubjects] = useState([]);
   const [selectedDifficulties, setSelectedDifficulties] = useState([]);
   const [file, setFile] = useState(null);
+  const [thumbnailFile, setThumbnailFile] = useState(null);
+  const [thumbnailPreview, setThumbnailPreview] = useState(null);
   const [dragActive, setDragActive] = useState(false);
+  const [thumbnailDragActive, setThumbnailDragActive] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState(null); // 'success', 'error', null
+  const [submitStatus, setSubmitStatus] = useState(null);
   const [errors, setErrors] = useState({});
   
   const fileInputRef = useRef(null);
+  const thumbnailInputRef = useRef(null);
   const modalRef = useRef(null);
 
   const resetForm = () => {
@@ -61,6 +65,8 @@ function UploadMaterialModal({ isOpen, onClose, onSubmit }) {
     setSelectedSubjects([]);
     setSelectedDifficulties([]);
     setFile(null);
+    setThumbnailFile(null);
+    setThumbnailPreview(null);
     setErrors({});
     setSubmitStatus(null);
   };
@@ -94,6 +100,7 @@ function UploadMaterialModal({ isOpen, onClose, onSubmit }) {
     setErrors(prev => ({ ...prev, difficulties: null }));
   };
 
+  // PDF file handling
   const handleDrag = useCallback((e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -130,6 +137,64 @@ function UploadMaterialModal({ isOpen, onClose, onSubmit }) {
       } else {
         setErrors(prev => ({ ...prev, file: 'Please upload a PDF file' }));
       }
+    }
+  };
+
+  // Thumbnail handling
+  const handleThumbnailDrag = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === 'dragenter' || e.type === 'dragover') {
+      setThumbnailDragActive(true);
+    } else if (e.type === 'dragleave') {
+      setThumbnailDragActive(false);
+    }
+  }, []);
+
+  const handleThumbnailDrop = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setThumbnailDragActive(false);
+    
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleThumbnailFile(e.dataTransfer.files[0]);
+    }
+  }, []);
+
+  const handleThumbnailChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      handleThumbnailFile(e.target.files[0]);
+    }
+  };
+
+  const handleThumbnailFile = (file) => {
+    const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    
+    if (!validTypes.includes(file.type)) {
+      setErrors(prev => ({ ...prev, thumbnail: 'Please upload an image (JPG, PNG, GIF, or WebP)' }));
+      return;
+    }
+    
+    if (file.size > 5 * 1024 * 1024) {
+      setErrors(prev => ({ ...prev, thumbnail: 'Image must be less than 5MB' }));
+      return;
+    }
+    
+    setThumbnailFile(file);
+    setErrors(prev => ({ ...prev, thumbnail: null }));
+    
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setThumbnailPreview(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removeThumbnail = () => {
+    setThumbnailFile(null);
+    setThumbnailPreview(null);
+    if (thumbnailInputRef.current) {
+      thumbnailInputRef.current.value = '';
     }
   };
 
@@ -184,7 +249,8 @@ function UploadMaterialModal({ isOpen, onClose, onSubmit }) {
         subjects: selectedSubjects,
         difficulties: selectedDifficulties,
         file: file,
-        status: 'pending', // All submissions start as pending for admin approval
+        thumbnailFile: thumbnailFile,
+        status: 'pending',
         submitted_at: new Date().toISOString()
       };
       
@@ -194,7 +260,6 @@ function UploadMaterialModal({ isOpen, onClose, onSubmit }) {
       
       setSubmitStatus('success');
       
-      // Auto-close after success
       setTimeout(() => {
         handleClose();
       }, 2000);
@@ -206,6 +271,8 @@ function UploadMaterialModal({ isOpen, onClose, onSubmit }) {
       setIsSubmitting(false);
     }
   };
+
+  const showThumbnailUpload = materialType !== 'youtube';
 
   if (!isOpen) return null;
 
@@ -226,7 +293,7 @@ function UploadMaterialModal({ isOpen, onClose, onSubmit }) {
           </button>
         </div>
 
-        {/* Success/Error Status */}
+        {/* Status Banners */}
         {submitStatus === 'success' && (
           <div className={styles.successBanner}>
             <CheckCircle size={20} />
@@ -243,7 +310,7 @@ function UploadMaterialModal({ isOpen, onClose, onSubmit }) {
 
         {/* Content */}
         <div className={styles.content}>
-          {/* Material Type Selection */}
+          {/* Material Type */}
           <div className={styles.section}>
             <label className={styles.label}>Material Type</label>
             <div className={styles.typeGrid}>
@@ -264,7 +331,7 @@ function UploadMaterialModal({ isOpen, onClose, onSubmit }) {
             </div>
           </div>
 
-          {/* Title Input */}
+          {/* Title */}
           <div className={styles.section}>
             <label className={styles.label}>
               Title <span className={styles.required}>*</span>
@@ -282,7 +349,7 @@ function UploadMaterialModal({ isOpen, onClose, onSubmit }) {
             {errors.title && <span className={styles.errorText}>{errors.title}</span>}
           </div>
 
-          {/* URL Input (for non-PDF types) */}
+          {/* URL (non-PDF) */}
           {materialType !== 'pdf' && (
             <div className={styles.section}>
               <label className={styles.label}>
@@ -308,7 +375,7 @@ function UploadMaterialModal({ isOpen, onClose, onSubmit }) {
             </div>
           )}
 
-          {/* File Upload (for PDF type) */}
+          {/* PDF Upload */}
           {materialType === 'pdf' && (
             <div className={styles.section}>
               <label className={styles.label}>
@@ -349,6 +416,67 @@ function UploadMaterialModal({ isOpen, onClose, onSubmit }) {
             </div>
           )}
 
+          {/* Thumbnail Upload (non-YouTube) */}
+          {showThumbnailUpload && (
+            <div className={styles.section}>
+              <label className={styles.label}>
+                Thumbnail Image <span className={styles.optional}>(optional)</span>
+              </label>
+              <p className={styles.hint}>
+                Add a thumbnail to make your material stand out. Recommended: 640×360px
+              </p>
+              
+              {thumbnailPreview ? (
+                <div className={styles.thumbnailPreviewContainer}>
+                  <img 
+                    src={thumbnailPreview} 
+                    alt="Thumbnail preview" 
+                    className={styles.thumbnailPreview}
+                  />
+                  <button 
+                    type="button"
+                    className={styles.removeThumbnail}
+                    onClick={removeThumbnail}
+                  >
+                    <Trash2 size={16} />
+                    Remove
+                  </button>
+                </div>
+              ) : (
+                <div
+                  className={`${styles.thumbnailDropzone} ${thumbnailDragActive ? styles.dropzoneActive : ''} ${errors.thumbnail ? styles.dropzoneError : ''}`}
+                  onDragEnter={handleThumbnailDrag}
+                  onDragLeave={handleThumbnailDrag}
+                  onDragOver={handleThumbnailDrag}
+                  onDrop={handleThumbnailDrop}
+                  onClick={() => thumbnailInputRef.current?.click()}
+                >
+                  <input
+                    ref={thumbnailInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/gif,image/webp"
+                    onChange={handleThumbnailChange}
+                    className={styles.fileInput}
+                  />
+                  <div className={styles.dropzoneContent}>
+                    <Image size={28} className={styles.uploadIcon} />
+                    <p>Drop an image here, or click to browse</p>
+                    <span className={styles.dropzoneHint}>JPG, PNG, GIF, or WebP (max 5MB)</span>
+                  </div>
+                </div>
+              )}
+              {errors.thumbnail && <span className={styles.errorText}>{errors.thumbnail}</span>}
+            </div>
+          )}
+
+          {/* YouTube note */}
+          {materialType === 'youtube' && (
+            <div className={styles.infoNote}>
+              <Youtube size={16} />
+              <span>Thumbnail will be automatically fetched from YouTube</span>
+            </div>
+          )}
+
           {/* Description */}
           <div className={styles.section}>
             <label className={styles.label}>Description</label>
@@ -361,7 +489,7 @@ function UploadMaterialModal({ isOpen, onClose, onSubmit }) {
             />
           </div>
 
-          {/* Subject Selection */}
+          {/* Subjects */}
           <div className={styles.section}>
             <label className={styles.label}>
               Subject(s) <span className={styles.required}>*</span>
@@ -381,7 +509,7 @@ function UploadMaterialModal({ isOpen, onClose, onSubmit }) {
             {errors.subjects && <span className={styles.errorText}>{errors.subjects}</span>}
           </div>
 
-          {/* Difficulty Selection */}
+          {/* Difficulties */}
           <div className={styles.section}>
             <label className={styles.label}>
               Difficulty Level(s) <span className={styles.required}>*</span>

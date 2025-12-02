@@ -9,6 +9,7 @@ import {gsap} from 'gsap';
 import { useCourses } from '../../contexts/CourseContext';
 import { useUserContext } from '../../hooks/useUserContext';
 import { decodeHtmlEntities } from '../../services/helpers';
+import MaterialsService from '../../services/materialsService';
 
 function Favorites() {
   const { courseList, loading: coursesLoading } = useCourses();
@@ -16,13 +17,15 @@ function Favorites() {
     user,
     enrolledCourses,
     favoritedCourses,
+    favoritedMaterials,
     loading: userLoading,
     error,
     refreshUserData,
-    clearError
+    clearError, 
   } = useUserContext();
 
   const [favoriteCourses, setFavoriteCourses] = useState([]);
+  const [favoriteMaterials, setFavoriteMaterials] = useState([]); 
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -111,6 +114,11 @@ function Favorites() {
     }
   }, [favoritedCourses, courseList]);
 
+  useEffect(()=>{
+    if (favoritedMaterials){
+      setFavoriteMaterials()
+    }
+  }, [favoritedMaterials])
   // Clear any errors when component mounts
   useEffect(() => {
     if (error) {

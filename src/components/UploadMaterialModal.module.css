@@ -18,12 +18,8 @@
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .modal {
@@ -103,7 +99,7 @@
   color: #ffffff;
 }
 
-/* Success/Error Banners */
+/* Banners */
 .successBanner,
 .errorBanner {
   display: flex;
@@ -170,7 +166,18 @@
   color: #ef4444;
 }
 
-/* Material Type Grid */
+.optional {
+  color: #6b7280;
+  font-weight: 400;
+}
+
+.hint {
+  font-size: 0.8125rem;
+  color: #6b7280;
+  margin: 0 0 0.5rem 0;
+}
+
+/* Type Grid */
 .typeGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
@@ -276,7 +283,8 @@
 }
 
 /* Dropzone */
-.dropzone {
+.dropzone,
+.thumbnailDropzone {
   border: 2px dashed rgba(255, 255, 255, 0.2);
   border-radius: 12px;
   padding: 2rem;
@@ -286,14 +294,19 @@
   background: rgba(255, 255, 255, 0.02);
 }
 
-.dropzone:hover {
+.thumbnailDropzone {
+  padding: 1.5rem;
+}
+
+.dropzone:hover,
+.thumbnailDropzone:hover {
   border-color: rgba(255, 255, 255, 0.3);
   background: rgba(255, 255, 255, 0.05);
 }
 
 .dropzoneActive {
-  border-color: #3b82f6;
-  background: rgba(59, 130, 246, 0.1);
+  border-color: #3b82f6 !important;
+  background: rgba(59, 130, 246, 0.1) !important;
 }
 
 .dropzoneError {
@@ -345,6 +358,58 @@
 
 .fileSize {
   color: #6b7280;
+  font-size: 0.8125rem;
+}
+
+/* Thumbnail Preview */
+.thumbnailPreviewContainer {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.thumbnailPreview {
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+  display: block;
+}
+
+.removeThumbnail {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(239, 68, 68, 0.9);
+  border: none;
+  border-radius: 6px;
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.removeThumbnail:hover {
+  background: rgba(239, 68, 68, 1);
+}
+
+/* Info Note */
+.infoNote {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.75rem 1rem;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.15);
+  border-radius: 8px;
+  color: #f87171;
   font-size: 0.8125rem;
 }
 
@@ -451,9 +516,7 @@
 }
 
 @keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+  to { transform: rotate(360deg); }
 }
 
 /* Responsive */

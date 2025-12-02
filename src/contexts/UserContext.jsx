@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { UserDataService } from '../services/userData';
+import MaterialsService from '../services/materialsService';
 
 export const UserContext = createContext();
 
@@ -9,6 +10,7 @@ export const UserProvider = ({ children }) => {
   const [userProfile, setUserProfile] = useState(null);
   const [enrolledCourses, setEnrolledCourses] = useState([]);
   const [favoritedCourses, setFavoritedCourses] = useState([]);
+  const [favoritedMaterials, setFavoritedMaterials] = useState([]); 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [initializing, setInitializing] = useState(true);
@@ -213,6 +215,41 @@ export const UserProvider = ({ children }) => {
     }
   };
 
+  const addMaterialToFavorites = async (material) => {
+    if (!user) {
+          setError('User not authenticated');
+          return false;
+        }
+    try{
+
+      let result = await MaterialsService.addToFavorites(user.id, material.id); 
+       if (result) {
+        const newFavorite = {
+          material_id: String(material.id),
+          user_id: user.id,
+          favorited_at: new Date().toISOString()
+        };
+        
+        setFavoritedMaterials(prev => {
+          const exists = prev.some(mat => 
+            String(mat.id) === String(material.id)
+          );
+          
+          if (exists) return prev;
+          return [...prev, newFavorite];
+        });
+        
+        console.log('✅ Successfully added course to favorites');
+        setError(null);
+        return true;
+      }
+
+    } catch (err) {
+      console.log("couldn't add material to favorites", err);
+    }
+  }
+
+
   // Course favorites functions
   const addCourseToFavorites = async (courseId) => {
     if (!user) {
@@ -351,6 +388,7 @@ export const UserProvider = ({ children }) => {
     userProfile,
     enrolledCourses,
     favoritedCourses,
+    favoritedMaterials, 
     loading: loading || initializing, // Include initializing in loading state
     error,
 
@@ -359,6 +397,7 @@ export const UserProvider = ({ children }) => {
     unenrollFromCourse,
     addCourseToFavorites,
     removeCourseFromFavorites,
+    addMaterialToFavorites,
     updateCourseProgress,
     refreshUserData,
 
