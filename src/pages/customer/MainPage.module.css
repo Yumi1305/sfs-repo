@@ -1,14 +1,18 @@
-:root{
+:root {
   --black: rgb(18, 18, 18);
 }
 
-body{
+body {
   background-color: rgb(29, 29, 32) !important;
 }
 
-.container{
+.container {
   padding-top: 5.5rem;
   padding-left: 230px;
+  padding-right: 1.5rem;
+  padding-bottom: 2rem;
+  min-height: 100vh;
+  box-sizing: border-box;
 }
 
 /* Content Type Filters */
@@ -17,7 +21,6 @@ body{
   align-items: center;
   gap: 0.75rem;
   margin-bottom: 1.5rem;
-  padding-right: 30px;
   flex-wrap: wrap;
 }
 
@@ -32,6 +35,7 @@ body{
   font-family: Inter, sans-serif;
   cursor: pointer;
   transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
 .filter-btn:hover {
@@ -78,13 +82,13 @@ body{
   gap: 1rem;
   padding: 0.75rem 1rem;
   margin-bottom: 1rem;
-  margin-right: 30px;
   background: rgba(59, 130, 246, 0.08);
   border: 1px solid rgba(59, 130, 246, 0.15);
   border-radius: 8px;
   color: #60a5fa;
   font-size: 0.875rem;
   font-family: Inter, sans-serif;
+  flex-wrap: wrap;
 }
 
 .active-filter span {
@@ -99,24 +103,31 @@ body{
 }
 
 /* Main Section Grid */
-.main-section{
-  padding-right: 30px;
-  height: 100%;
-  width: 100%;
+.main-section {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 2rem;
-  flex-wrap: wrap;
+  gap: 1.5rem;
 }
 
 /* Loader */
-.loader-container{
+.loader-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgb(29, 29, 32);
+  z-index: 1000;
   opacity: 1;
-  transition: all 0.5s ease;
+  transition: opacity 0.5s ease;
 }
 
-.loader-container.fade{
+.loader-container.fade {
   opacity: 0;
+  pointer-events: none;
 }
 
 /* Search Loading */
@@ -179,6 +190,8 @@ body{
   color: #ef4444;
   font-family: Inter, sans-serif;
   margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
 .error-message p {
@@ -201,74 +214,134 @@ body{
   background: rgba(239, 68, 68, 0.15);
 }
 
-/* Responsive */
-@media (max-width: 1024px) {
+/* ========== RESPONSIVE BREAKPOINTS ========== */
+
+/* Large Tablet / Small Desktop */
+@media (max-width: 1200px) {
   .container {
-    padding-left: 1.5rem;
+    padding-left: 210px;
   }
-  
-  .content-filters {
-    padding-right: 1.5rem;
-  }
-  
+
   .main-section {
-    padding-right: 1.5rem;
-  }
-  
-  .active-filter {
-    margin-right: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   }
 }
 
+/* Tablet */
+@media (max-width: 1024px) {
+  .container {
+    padding-left: 200px;
+    padding-right: 1rem;
+  }
+
+  .main-section {
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.25rem;
+  }
+}
+
+/* Mobile - No sidebar */
 @media (max-width: 768px) {
   .container {
     padding-left: 1rem;
+    padding-right: 1rem;
     padding-top: 5rem;
+    padding-bottom: 6rem; /* Space for floating filter button */
   }
-  
+
   .content-filters {
-    padding-right: 1rem;
     gap: 0.5rem;
+    margin-bottom: 1rem;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 0.5rem;
+    -webkit-overflow-scrolling: touch;
   }
-  
+
+  .content-filters::-webkit-scrollbar {
+    display: none;
+  }
+
   .filter-btn {
-    padding: 0.375rem 0.75rem;
+    padding: 0.4rem 0.75rem;
     font-size: 0.8125rem;
+    flex-shrink: 0;
   }
-  
-  .main-section {
-    padding-right: 1rem;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1.5rem;
+
+  .clear-filter-btn {
+    margin-left: 0;
+    flex-shrink: 0;
   }
-  
+
   .active-filter {
-    margin-right: 1rem;
-    flex-wrap: wrap;
+    padding: 0.625rem 0.875rem;
+    font-size: 0.8125rem;
     gap: 0.5rem;
   }
-  
+
   .result-count {
     margin-left: 0;
     width: 100%;
   }
+
+  .main-section {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+
+  .no-results,
+  .no-courses {
+    padding: 3rem 1.5rem;
+  }
+
+  .no-results p,
+  .no-courses p {
+    font-size: 1rem;
+  }
 }
 
+/* Small Mobile */
 @media (max-width: 480px) {
+  .container {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    padding-top: 4.5rem;
+  }
+
   .content-filters {
-    flex-direction: column;
-    align-items: stretch;
+    margin-bottom: 0.75rem;
   }
-  
+
   .filter-btn {
-    text-align: center;
+    padding: 0.375rem 0.625rem;
+    font-size: 0.75rem;
   }
-  
-  .clear-filter-btn {
-    margin-left: 0;
-  }
-  
+
   .main-section {
     grid-template-columns: 1fr;
+    gap: 0.875rem;
+  }
+
+  .active-filter {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .no-results,
+  .no-courses {
+    padding: 2rem 1rem;
+  }
+}
+
+/* Extra Small Mobile */
+@media (max-width: 360px) {
+  .container {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  .filter-btn {
+    padding: 0.3rem 0.5rem;
+    font-size: 0.6875rem;
   }
 }

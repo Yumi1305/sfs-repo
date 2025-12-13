@@ -1,108 +1,48 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styles from './MaterialCard.module.css';
 import { Link as LinkIcon, Youtube, FileText, File, ExternalLink, Clock, Bookmark } from 'lucide-react';
 import { useUserContext } from '../hooks/useUserContext';
-import { supabase } from '../lib/supabase';
 
-const TYPE_ICONS = {
-  link: LinkIcon,
-  youtube: Youtube,
-  pdf: FileText,
-  document: File,
-  course: FileText
+const TYPE_CONFIG = {
+  link: { icon: LinkIcon, label: 'Link', color: '#3b82f6' },
+  youtube: { icon: Youtube, label: 'Video', color: '#ef4444' },
+  pdf: { icon: FileText, label: 'PDF', color: '#f59e0b' },
+  document: { icon: File, label: 'Document', color: '#10b981' },
+  course: { icon: FileText, label: 'Course', color: '#8b5cf6' }
 };
 
-const TYPE_LABELS = {
-  link: 'Link',
-  youtube: 'Video',
-  pdf: 'PDF',
-  document: 'Document',
-  course: 'Course'
-};
-
-const TYPE_COLORS = {
-  link: '#3b82f6',
-  youtube: '#ef4444',
-  pdf: '#f59e0b',
-  document: '#10b981',
-  course: '#8b5cf6'
-};
-
-function MaterialCard({ material, onFavoriteChange }) {
-  const {user, addMaterialToFavorites } = useUserContext();
-  const [isFavorited, setIsFavorited] = useState(material.is_favorited || false);
-  const [favoriteLoading, setFavoriteLoading] = useState(false);
+function MaterialCard({ material }) {
+  const { user, toggleMaterialFavorite, isMaterialFavorited } = useUserContext();
+  const [isToggling, setIsToggling] = React.useState(false);
   
-  const IconComponent = TYPE_ICONS[material.type] || FileText;
-  const typeColor = TYPE_COLORS[material.type] || '#6b7280';
-  
+  const config = TYPE_CONFIG[material.type] || TYPE_CONFIG.link;
+  const IconComponent = config.icon;
+  const isFavorited = isMaterialFavorited(material.id);
+
   const handleClick = (e) => {
-    // Don't open link if clicking favorite button
     if (e.target.closest(`.${styles.favoriteButton}`)) return;
     
-    if (material.url) {
-      window.open(material.url, '_blank', 'noopener,noreferrer');
-    } else if (material.file_url) {
-      window.open(material.file_url, '_blank', 'noopener,noreferrer');
-    }
+    const url = material.url || material.file_url;
+    if (url) window.open(url, '_blank', 'noopener,noreferrer');
   };
 
   const handleFavoriteClick = async (e) => {
+
     e.preventDefault();
     e.stopPropagation();
     
-    if (!user) {
-      console.log('User must be logged in to favorite');
-      return;
+    if (!user || isToggling){
+      console.log("not logged in!")
     }
-    
-    if (favoriteLoading) return;
-    
-    setFavoriteLoading(true);
-    
-    try {
-      if (isFavorited) {
-        // Remove from favorites
-        const { error } = await supabase
-          .from('user_favorited_materials')
-          .delete()
-          .eq('user_id', user.id)
-          .eq('material_id', material.id);
 
-        const result = await addMaterialToFavorites(material); 
-        if (!result){
-          console.log("I honestly don't know what I'm doing anymore.")
-        }
-        
-        if (error) throw error;
-        setIsFavorited(false);
-      } else {
-        // Add to favorites
-        const { error } = await supabase
-          .from('user_favorited_materials')
-          .insert({
-            user_id: user.id,
-            material_id: material.id,
-            favorited_at: new Date().toISOString()
-          });
-        
-        if (error) throw error;
-        setIsFavorited(true);
-      }
-      
-      if (onFavoriteChange) {
-        onFavoriteChange(material.id, !isFavorited);
-      }
-    } catch (error) {
-      console.error('Error toggling favorite:', error);
-    } finally {
-      setFavoriteLoading(false);
-    }
+    
+    setIsToggling(true);
+    await toggleMaterialFavorite(material.id);
+    setIsToggling(false);
   };
 
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
+    return new Date(dateString).toLocaleDateString('en-US', { 
       month: 'short', 
       day: 'numeric',
       year: 'numeric'
@@ -112,32 +52,16 @@ function MaterialCard({ material, onFavoriteChange }) {
   const getYoutubeThumbnail = (url) => {
     if (!url) return null;
     const match = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
-    if (match && match[1]) {
-      return `https://img.youtube.com/vi/${match[1]}/mqdefault.jpg`;
-    }
-    return null;
+    return match?.[1] ? `https://img.youtube.com/vi/${match[1]}/mqdefault.jpg` : null;
   };
 
-  // Determine which thumbnail to show
-  const getThumbnail = () => {
-    // For YouTube, always try to get the auto-thumbnail
-    if (material.type === 'youtube') {
-      return getYoutubeThumbnail(material.url);
-    }
-    
-    // For other types, use the uploaded thumbnail if available
-    if (material.thumbnail_url) {
-      return material.thumbnail_url;
-    }
-    
-    return null;
-  };
-
-  const thumbnail = getThumbnail();
+  const thumbnail = material.type === 'youtube' 
+    ? getYoutubeThumbnail(material.url) 
+    : material.thumbnail_url;
 
   return (
     <div className={styles.card} onClick={handleClick}>
-      {/* Thumbnail section */}
+      {/* Thumbnail */}
       {thumbnail ? (
         <div className={styles.thumbnail}>
           <img src={thumbnail} alt={material.title} />
@@ -154,55 +78,45 @@ function MaterialCard({ material, onFavoriteChange }) {
           )}
         </div>
       ) : (
-        // Placeholder thumbnail for materials without images
-        <div className={styles.placeholderThumbnail} style={{ backgroundColor: `${typeColor}15` }}>
-          <IconComponent size={40} style={{ color: typeColor }} />
-          <span style={{ color: typeColor }}>{TYPE_LABELS[material.type]}</span>
+        <div className={styles.placeholderThumbnail} style={{ backgroundColor: `${config.color}15` }}>
+          <IconComponent size={40} style={{ color: config.color }} />
+          <span style={{ color: config.color }}>{config.label}</span>
         </div>
       )}
       
-      {/* Card content */}
+      {/* Content */}
       <div className={styles.content}>
-        {/* Type badge */}
         <div className={styles.header}>
           <div 
             className={styles.typeBadge}
-            style={{ backgroundColor: `${typeColor}20`, color: typeColor }}
+            style={{ backgroundColor: `${config.color}20`, color: config.color }}
           >
             <IconComponent size={14} />
-            <span>{TYPE_LABELS[material.type]}</span>
+            <span>{config.label}</span>
           </div>
           <ExternalLink size={16} className={styles.externalIcon} />
         </div>
 
-        {/* Title */}
         <h3 className={styles.title}>{material.title}</h3>
 
-        {/* Description */}
         {material.description && (
           <p className={styles.description}>{material.description}</p>
         )}
 
-        {/* Tags */}
         <div className={styles.tags}>
-          {material.subjects && material.subjects.slice(0, 3).map((subject, index) => (
-            <span key={index} className={styles.subjectTag}>
-              {subject}
-            </span>
+          {material.subjects?.slice(0, 3).map((subject, i) => (
+            <span key={i} className={styles.subjectTag}>{subject}</span>
           ))}
-          {material.subjects && material.subjects.length > 3 && (
+          {material.subjects?.length > 3 && (
             <span className={styles.moreTag}>+{material.subjects.length - 3}</span>
           )}
         </div>
 
-        {/* Footer */}
         <div className={styles.footer}>
           <div className={styles.footerLeft}>
             <div className={styles.difficulties}>
-              {material.difficulties && material.difficulties.slice(0, 2).map((difficulty, index) => (
-                <span key={index} className={styles.difficultyTag}>
-                  {difficulty}
-                </span>
+              {material.difficulties?.slice(0, 2).map((difficulty, i) => (
+                <span key={i} className={styles.difficultyTag}>{difficulty}</span>
               ))}
             </div>
             <div className={styles.date}>
@@ -211,18 +125,16 @@ function MaterialCard({ material, onFavoriteChange }) {
             </div>
           </div>
           
-          {/* Favorite Button */}
-          <button
-            className={`${styles.favoriteButton} ${isFavorited ? styles.favorited : ''}`}
-            onClick={handleFavoriteClick}
-            disabled={favoriteLoading}
-            title={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
-          >
-            <Bookmark 
-              size={18} 
-              fill={isFavorited ? 'currentColor' : 'none'}
-            />
-          </button>
+          {(
+            <button
+              className={`${styles.favoriteButton} ${isFavorited ? styles.favorited : ''}`}
+              onClick={handleFavoriteClick}
+              disabled={isToggling}
+              title={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
+            >
+              <Bookmark size={18} fill={isFavorited ? 'currentColor' : 'none'} />
+            </button>
+          )}
         </div>
       </div>
     </div>

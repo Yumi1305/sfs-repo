@@ -1,52 +1,57 @@
-import styles from '../components/NavBar.module.css'
-import clsx from 'clsx'
-import { useState } from 'react'
-import { FaSearch } from "react-icons/fa";
-import { Upload } from 'lucide-react';
+import styles from '../components/NavBar.module.css';
+import clsx from 'clsx';
+import { useState, useEffect } from 'react';
+import { Upload, Menu, X } from 'lucide-react';
 import ProfileDropdown from './ProfileDropdown';
 import { Link, useLocation } from 'react-router-dom';
 import SearchBar from './SearchBar';
 import UploadMaterialModal from './UploadMaterialModal';
 import { useUserContext } from '../hooks/useUserContext';
-import { MaterialsService } from '../services/materialsService';
 
 function NavBar({ onSearch }) {
-  const [open, setOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [uploadNotification, setUploadNotification] = useState(null);
   const location = useLocation();
   const { user } = useUserContext();
 
-  // Determine active button based on current path
+  // Close mobile menu on route change
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location.pathname]);
+
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [mobileMenuOpen]);
+
   const getActiveBtn = () => {
     if (location.pathname === '/mainpg') return 'dashboard';
     if (location.pathname === '/my-courses') return 'my-courses';
     if (location.pathname === '/favorites') return 'favorites';
-    if (location.pathname === '/donate') return 'donate'
-    if (location.pathname === '/tutoring') return 'tutor'
-    if (location.pathname === '/materials') return 'materials'
+    if (location.pathname === '/donate') return 'donate';
+    if (location.pathname === '/tutoring') return 'tutor';
+    if (location.pathname === '/materials') return 'materials';
   };
 
   const activebtn = getActiveBtn();
 
   const handleSearch = (searchTerm) => {
-    // Pass the search term to parent component
-    if (onSearch) {
-      onSearch(searchTerm);
-    }
+    if (onSearch) onSearch(searchTerm);
+    setMobileMenuOpen(false);
   };
 
   const handleOpenUploadModal = () => {
-    // if (!user) {
-    //   // Show a notification that user needs to sign in
-    //   setUploadNotification({
-    //     type: 'warning',
-    //     message: 'Please sign in to upload materials'
-    //   });
-    //   setTimeout(() => setUploadNotification(null), 3000);
-    //   return;
-    // }
     setIsUploadModalOpen(true);
+    setMobileMenuOpen(false);
   };
 
   const handleCloseUploadModal = () => {
@@ -54,22 +59,15 @@ function NavBar({ onSearch }) {
   };
 
   const handleMaterialSubmit = async (materialData) => {
-    if (!user) {
-      throw new Error('User not authenticated');
-    }
+    if (!user) throw new Error('User not authenticated');
 
     try {
       await MaterialsService.submitMaterial(user.id, materialData);
-      
-      // Show success notification
       setUploadNotification({
         type: 'success',
         message: 'Material submitted! Pending admin approval.'
       });
-      
-      // Clear notification after 5 seconds
       setTimeout(() => setUploadNotification(null), 5000);
-      
     } catch (error) {
       console.error('Error submitting material:', error);
       throw error;
@@ -78,69 +76,36 @@ function NavBar({ onSearch }) {
 
   return (
     <>
-      <div className={styles["navBar"]}>
-        <Link to={"/mainpg"} className={styles["left"]}>SFS</Link>
-        <SearchBar
-          onSearch={handleSearch}
-          placeholder="Search courses..."
-        ></SearchBar>
+      <nav className={styles.navBar}>
+        <Link to="/mainpg" className={styles.left}>SFS</Link>
+        
+        {/* Desktop Search */}
+        <div className={styles.desktopSearch}>
+          <SearchBar onSearch={handleSearch} placeholder="Search courses..." />
+        </div>
 
-        <div className={styles["right"]}>
-          {/* Upload Material Button */}
-          <button
-            className={styles["upload-btn"]}
-            onClick={handleOpenUploadModal}
-            title="Upload study material"
-          >
+        {/* Desktop Navigation */}
+        <div className={styles.right}>
+          <button className={styles.uploadBtn} onClick={handleOpenUploadModal} title="Upload study material">
             <Upload size={16} />
             <span>Upload Material</span>
           </button>
 
-          <Link
-            style={{ textDecoration: "none" }}
-            to={"/mainpg"}
-            className={clsx(
-              styles["nav-btn"],
-              activebtn === "dashboard" && styles["active"]
-            )}
-          >
+          <Link to="/mainpg" className={clsx(styles.navBtn, activebtn === 'dashboard' && styles.active)}>
             dashboard
           </Link>
-          <Link
-            to={"/my-courses"}
-            className={clsx(
-              styles["nav-btn"],
-              activebtn === "my-courses" && styles["active"]
-            )}
-          >
+          <Link to="/my-courses" className={clsx(styles.navBtn, activebtn === 'my-courses' && styles.active)}>
             my courses
           </Link>
-          <Link
-            to={'/donate'}
-            className={clsx(styles['nav-btn'],
-              activebtn === 'donate' && styles['active']
-            )}
-          >
+          <Link to="/donate" className={clsx(styles.navBtn, activebtn === 'donate' && styles.active)}>
             donate
           </Link>
-          <Link
-            to={'/tutoring'}
-            className={clsx(styles['nav-btn'],
-              activebtn === 'tutor' && styles['active']
-            )}
-          >
+          {/* <Link to="/tutoring" className={clsx(styles.navBtn, activebtn === 'tutor' && styles.active)}>
             tutoring
-          </Link>
-          <Link
-            className={clsx(styles["favorites"], styles["nav-btn"])}
-            to={"/favorites"}
-            style={{ textDecoration: `none` }}
-          >
+          </Link> */}
+          <Link to="/favorites" className={clsx(styles.favorites, styles.navBtn)}>
             <svg
-              className={clsx(
-                styles["favorites-svg"],
-                activebtn === "favorites" && styles["active"]
-              )}
+              className={clsx(styles.favoritesSvg, activebtn === 'favorites' && styles.active)}
               xmlns="http://www.w3.org/2000/svg"
               height="24px"
               viewBox="0 -960 960 960"
@@ -149,30 +114,65 @@ function NavBar({ onSearch }) {
               <path d="M200-120v-640q0-33 23.5-56.5T280-840h400q33 0 56.5 23.5T760-760v640L480-240 200-120Zm80-122 200-86 200 86v-518H280v518Zm0-518h400-400Z" />
             </svg>
           </Link>
-          <button
-            className={styles["profile-icon"]}
-            onClick={() => {
-              setOpen(!open);
-            }}
-          >
-            <ProfileDropdown open={open}></ProfileDropdown>
+          <button className={styles.profileIcon} onClick={() => setProfileOpen(!profileOpen)}>
+            <ProfileDropdown open={profileOpen} />
+          </button>
+        </div>
+
+        {/* Mobile Menu Button */}
+        <button className={styles.mobileMenuBtn} onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+          {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
+      </nav>
+
+      {/* Mobile Menu Overlay */}
+      <div className={clsx(styles.mobileOverlay, mobileMenuOpen && styles.open)} onClick={() => setMobileMenuOpen(false)} />
+
+      {/* Mobile Menu */}
+      <div className={clsx(styles.mobileMenu, mobileMenuOpen && styles.open)}>
+        <div className={styles.mobileSearchWrapper}>
+          <SearchBar onSearch={handleSearch} placeholder="Search courses..." />
+        </div>
+
+        <div className={styles.mobileNavLinks}>
+          <Link to="/mainpg" className={clsx(styles.mobileNavBtn, activebtn === 'dashboard' && styles.active)}>
+            Dashboard
+          </Link>
+          <Link to="/my-courses" className={clsx(styles.mobileNavBtn, activebtn === 'my-courses' && styles.active)}>
+            My Courses
+          </Link>
+          <Link to="/favorites" className={clsx(styles.mobileNavBtn, activebtn === 'favorites' && styles.active)}>
+            Favorites
+          </Link>
+          <Link to="/donate" className={clsx(styles.mobileNavBtn, activebtn === 'donate' && styles.active)}>
+            Donate
+          </Link>
+          <Link to="/tutoring" className={clsx(styles.mobileNavBtn, activebtn === 'tutor' && styles.active)}>
+            Tutoring
+          </Link>
+        </div>
+
+        <button className={styles.mobileUploadBtn} onClick={handleOpenUploadModal}>
+          <Upload size={18} />
+          <span>Upload Material</span>
+        </button>
+
+        <div className={styles.mobileProfileSection}>
+          <button className={styles.mobileProfileBtn} onClick={() => setProfileOpen(!profileOpen)}>
+            <div className={styles.mobileProfileIcon} />
+            <span>Profile</span>
           </button>
         </div>
       </div>
 
-      {/* Upload Material Modal */}
       <UploadMaterialModal
         isOpen={isUploadModalOpen}
         onClose={handleCloseUploadModal}
         onSubmit={handleMaterialSubmit}
       />
 
-      {/* Notification Toast */}
       {uploadNotification && (
-        <div className={clsx(
-          styles['notification-toast'],
-          styles[`notification-${uploadNotification.type}`]
-        )}>
+        <div className={clsx(styles.notificationToast, styles[`notification-${uploadNotification.type}`])}>
           {uploadNotification.message}
         </div>
       )}
@@ -180,4 +180,4 @@ function NavBar({ onSearch }) {
   );
 }
 
-export default NavBar
+export default NavBar;

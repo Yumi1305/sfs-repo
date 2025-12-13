@@ -1,191 +1,337 @@
-.container {
-  padding-top: 5.5rem;
-}
+/* TutorCard.module.css */
 
-.widget {
-  width: 90vw;
-  display: flex;
-  align-items: center;
-  gap: 3rem;
-  padding: 1rem 3rem;
-  background: rgba(139, 197, 255, 0.08);
-  border: 1px solid rgba(139, 197, 255, 0.2);
+.tutorCard {
+  margin-bottom: 1rem;
+  padding: 16px;
+  border: 1px solid rgba(139, 197, 255, 0.25);
   border-radius: 16px;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  margin: 0rem auto;
   transition: all 0.3s ease;
-}
-
-.widget:hover {
-  background: rgba(139, 197, 255, 0.12);
-  border-color: rgba(139, 197, 255, 0.3);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 32px rgba(139, 197, 255, 0.15);
-}
-
-.tutorImage {
-  flex-shrink: 0;
-  width: 300px;
-  height: 180px;
-  background-position: left;
-  background-image: url('../../images/tutor.png');
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-}
-
-.header1 {
-  flex: 1;
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #e2e8f0;
-  line-height: 1.5;
-  letter-spacing: -0.01em;
-  font-family: satoshi;
-}
-
-.header1::after {
-  content: "All tutors are verified for safe access to quality education.";
-  display: block;
-  font-size: 1rem;
-  margin-top: 0.7rem;
-  color: rgb(180, 180, 180);
-}
-
-.scrollIndicator {
-  display: flex;
-  justify-content: center;
-  margin: 0.5rem auto;
-  opacity: 0.7;
-  transition: opacity 0.3s ease;
-}
-
-.scrollIndicator:hover {
-  opacity: 1;
-}
-
-.chevron {
-  width: 32px;
-  height: 32px;
-  color: rgb(173, 192, 255);
-  animation: bounce 2s infinite;
   cursor: pointer;
-  transition: color 0.3s ease;
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
 }
 
-.chevron:hover {
-  color: rgb(158, 139, 255);
+.init {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
 }
 
-@keyframes bounce {
-  0%, 20%, 50%, 80%, 100% {
-    transform: translateY(0);
-  }
-  40% {
-    transform: translateY(-8px);
-  }
-  60% {
-    transform: translateY(-4px);
-  }
+.tutorCard:hover {
+  background: linear-gradient(135deg, rgba(139, 197, 255, 0.18) 0%, rgba(181, 218, 253, 0.094) 100%);
+  border-color: rgba(139, 185, 255, 0.678);
+  transform: translateY(-2px);
 }
 
-.instructorList {
-  width: 50vw;
-  padding-left: 3rem;
-  /* Make sure there's enough content to scroll */
-  min-height: 200vh;
+.left {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.profile-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.icon {
+  all: unset;
+  aspect-ratio: 1/1;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(139, 197, 255, 0.4) 0%, rgba(196, 181, 253, 0.3) 100%);
+  border: 2px solid rgba(139, 197, 255, 0.5);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.icon:hover {
+  background: linear-gradient(135deg, rgba(139, 197, 255, 0.5) 0%, rgba(196, 181, 253, 0.4) 100%);
+  border-color: rgba(139, 197, 255, 0.7);
+}
+
+.userInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.creator {
+  color: rgb(240, 245, 250);
+  font-size: 16px;
+  font-weight: 600;
+  font-family: Inter, sans-serif;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .email {
-  font-size: 4rem;
-  color: white;
+  color: rgb(190, 195, 201);
+  font-size: 13px;
+  font-weight: 400;
+  font-family: Inter, sans-serif;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.flex {
-  margin-top: 3rem;
+.date {
+  color: rgba(213, 202, 255, 0.921);
+  font-size: 11px;
+  font-family: Inter, sans-serif;
+  font-weight: 500;
+  margin-top: 10px;
+}
+
+.right {
   display: flex;
-  gap: 2rem;
-  position: relative;
-  /* Make sure this container is tall enough */
-  min-height: 150vh;
+  align-items: center;
+  flex-shrink: 0;
 }
 
-.cont1 {
-  flex: 1;
+.scheduleBtn {
+  all: unset;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, rgba(139, 197, 255, 0.25) 0%, rgba(196, 181, 253, 0.2) 100%);
+  border: 1px solid rgba(139, 197, 255, 0.3);
+  border-radius: 12px;
+  color: rgb(240, 245, 250);
+  font-size: 14px;
+  font-weight: 600;
+  font-family: Inter, sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  white-space: nowrap;
 }
 
-.dynamicCalendly {
-  flex: 1;
-  position: sticky;
-  top: 4rem; /* This is where it will stick - at the top of the viewport */
-  height: fit-content; /* Don't take full height */
-  z-index: 100;
-  border-radius: 8px;
-  padding: 1rem;
+.scheduleBtn:hover {
+  background: linear-gradient(135deg, rgba(139, 197, 255, 0.35) 0%, rgba(196, 181, 253, 0.3) 100%);
+  border-color: rgba(139, 197, 255, 0.5);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(139, 197, 255, 0.2);
 }
 
-/* Remove the body height override */
-/* body {
-  height: 500vh;
-} */
+.scheduleBtn.active {
+  background: linear-gradient(135deg, rgba(139, 197, 255, 0.4) 0%, rgba(196, 181, 253, 0.35) 100%);
+  border-color: rgba(139, 197, 255, 0.6);
+}
 
-/* Responsive design */
+.cont {
+  display: flex;
+  align-items: center;
+  justify-content: left;
+  gap: 5px;
+  margin-top: 20px;
+}
+
+.tutorCard .addInfo {
+  display: block;
+  color: rgb(240, 245, 250);
+  font-family: satoshi;
+  font-weight: 500;
+}
+
+.courseIcon {
+  width: 20px;
+  height: 20px;
+  color: rgba(177, 203, 255, 0.918);
+  flex-shrink: 0;
+}
+
+.courseScroller {
+  display: flex;
+  gap: 15px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 8px 4px 12px 4px;
+  margin: 5px -4px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(139, 197, 255, 0.3) transparent;
+  -webkit-overflow-scrolling: touch;
+}
+
+.courseScroller::-webkit-scrollbar {
+  height: 6px;
+}
+
+.courseScroller::-webkit-scrollbar-track {
+  background: rgba(139, 197, 255, 0.1);
+  border-radius: 3px;
+}
+
+.courseScroller::-webkit-scrollbar-thumb {
+  background: linear-gradient(90deg, rgba(139, 197, 255, 0.4) 0%, rgba(196, 181, 253, 0.3) 100%);
+  border-radius: 3px;
+  transition: background 0.3s ease;
+}
+
+.courseScroller::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(90deg, rgba(139, 197, 255, 0.6) 0%, rgba(196, 181, 253, 0.5) 100%);
+}
+
+.courseScroller > * {
+  flex-shrink: 0;
+  width: 240px;
+  height: 180px;
+}
+
+.courseScroller {
+  scroll-behavior: smooth;
+}
+
+/* ========== RESPONSIVE BREAKPOINTS ========== */
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .tutorCard {
+    padding: 14px;
+  }
+
+  .icon {
+    height: 44px;
+  }
+
+  .creator {
+    font-size: 15px;
+  }
+
+  .email {
+    font-size: 12px;
+  }
+
+  .scheduleBtn {
+    padding: 7px 14px;
+    font-size: 13px;
+  }
+
+  .courseScroller > * {
+    width: 220px;
+    height: 165px;
+  }
+}
+
+/* Mobile */
 @media (max-width: 768px) {
-  .widget {
+  .tutorCard {
+    padding: 12px;
+    border-radius: 14px;
+  }
+
+  .tutorCard:hover {
+    transform: none;
+  }
+
+  .tutorCard:active {
+    transform: scale(0.98);
+  }
+
+  .init {
     flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .left {
+    width: 100%;
+  }
+
+  .profile-section {
+    gap: 10px;
+  }
+
+  .icon {
+    height: 40px;
+  }
+
+  .creator {
+    font-size: 14px;
+  }
+
+  .email {
+    font-size: 11px;
+  }
+
+  .date {
+    font-size: 10px;
+    margin-top: 8px;
+  }
+
+  .right {
+    width: 100%;
+  }
+
+  .scheduleBtn {
+    width: 100%;
     text-align: center;
-    gap: 1.5rem;
-    padding: 1.5rem;
+    justify-content: center;
+    padding: 10px 16px;
+    font-size: 14px;
+    border-radius: 10px;
   }
-  
-  .tutorImage {
-    width: 100px;
-    height: 100px;
+
+  .cont {
+    margin-top: 16px;
   }
-  
-  .header1 {
-    font-size: 1.1rem;
+
+  .addInfo {
+    font-size: 13px;
   }
-  
-  .chevron {
-    width: 28px;
-    height: 28px;
+
+  .courseScroller {
+    gap: 10px;
+    margin: 4px -4px;
+    padding: 6px 4px 10px 4px;
+  }
+
+  .courseScroller > * {
+    width: 200px;
+    height: 150px;
   }
 }
 
-/* Light mode variants */
-@media (prefers-color-scheme: light) {
-  .widget {
-    background: rgba(139, 197, 255, 0.06);
-    border-color: rgba(139, 197, 255, 0.15);
+/* Small Mobile */
+@media (max-width: 480px) {
+  .tutorCard {
+    padding: 10px;
+    border-radius: 12px;
   }
-  
-  .widget:hover {
-    background: rgba(139, 197, 255, 0.1);
+
+  .profile-section {
+    gap: 8px;
   }
-  
-  .header1 {
-    color: #475569;
+
+  .icon {
+    height: 36px;
   }
-  
-  .tutorImage {
-    background-color: rgba(165, 214, 255, 0.08);
-    border-color: rgba(165, 214, 255, 0.15);
+
+  .creator {
+    font-size: 13px;
   }
-  
-  .chevron {
-    color: rgba(99, 102, 241, 0.7);
+
+  .email {
+    font-size: 10px;
   }
-  
-  .chevron:hover {
-    color: rgba(99, 102, 241, 1);
+
+  .scheduleBtn {
+    padding: 9px 14px;
+    font-size: 13px;
   }
-  
-  .dynamicCalendly {
-    background-color: rgba(255, 255, 255, 0.95);
+
+  .courseScroller > * {
+    width: 180px;
+    height: 135px;
+  }
+
+  .courseScroller {
+    gap: 8px;
   }
 }

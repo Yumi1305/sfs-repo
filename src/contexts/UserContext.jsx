@@ -1,7 +1,6 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import { UserDataService } from '../services/userData';
-import MaterialsService from '../services/materialsService';
 
 export const UserContext = createContext();
 
@@ -10,7 +9,7 @@ export const UserProvider = ({ children }) => {
   const [userProfile, setUserProfile] = useState(null);
   const [enrolledCourses, setEnrolledCourses] = useState([]);
   const [favoritedCourses, setFavoritedCourses] = useState([]);
-  const [favoritedMaterials, setFavoritedMaterials] = useState([]); 
+  const [favoritedMaterialIds, setFavoritedMaterialIds] = useState(new Set());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [initializing, setInitializing] = useState(true);
@@ -21,32 +20,23 @@ export const UserProvider = ({ children }) => {
 
     const initializeUser = async () => {
       try {
-        console.log('🚀 UserContext: Initializing user...');
         setLoading(true);
         setInitializing(true);
         
-        // CRITICAL FIX: Wait for auth to be ready first
         await new Promise(resolve => setTimeout(resolve, 100));
         
-        // Get current session with explicit refresh
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
           console.error('Session error:', sessionError);
           setError(sessionError.message);
         } else if (session?.user && mounted) {
-          console.log('Session found on initialization:', session.user.id);
           setUser(session.user);
           await loadUserData(session.user.id);
-        } else {
-          console.log('ℹ️ No active session found');
-          // Don't clear user data immediately, let auth state change handle it
         }
       } catch (err) {
-        console.error('❌ Error initializing user:', err);
-        if (mounted) {
-          setError(err.message);
-        }
+        console.error('Error initializing user:', err);
+        if (mounted) setError(err.message);
       } finally {
         if (mounted) {
           setLoading(false);
@@ -55,22 +45,15 @@ export const UserProvider = ({ children }) => {
       }
     };
 
-    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('🔄 Auth state changed:', event, 'User ID:', session?.user?.id);
-      
       if (!mounted) return;
 
-      // Handle different auth events
       switch (event) {
         case 'SIGNED_IN':
         case 'TOKEN_REFRESHED':
           if (session?.user) {
-            console.log('✅ User signed in/token refreshed:', session.user.id);
             setUser(session.user);
             setError(null);
-            
-            // Only load data if not already loading
             if (!loading) {
               setLoading(true);
               await loadUserData(session.user.id);
@@ -80,27 +63,20 @@ export const UserProvider = ({ children }) => {
           break;
           
         case 'SIGNED_OUT':
-          console.log('👋 User signed out');
           setUser(null);
           setUserProfile(null);
           setEnrolledCourses([]);
           setFavoritedCourses([]);
+          setFavoritedMaterialIds(new Set());
           setError(null);
           break;
           
         case 'USER_UPDATED':
-          if (session?.user) {
-            console.log('📝 User updated:', session.user.id);
-            setUser(session.user);
-          }
+          if (session?.user) setUser(session.user);
           break;
-          
-        default:
-          console.log('🔄 Other auth event:', event);
       }
     });
 
-    // Initialize after a brief delay to ensure Supabase is ready
     const initTimer = setTimeout(initializeUser, 50);
 
     return () => {
@@ -113,29 +89,104 @@ export const UserProvider = ({ children }) => {
   // Load user data from database
   const loadUserData = async (userId) => {
     try {
-      console.log('📊 Loading user data for:', userId);
-      
-      const [profile, dashboardData] = await Promise.all([
+      const [profile, dashboardData, favoritedMaterials] = await Promise.all([
         UserDataService.getUserProfile(userId),
-        UserDataService.getUserDashboardData(userId)
+        UserDataService.getUserDashboardData(userId),
+        loadFavoritedMaterialIds(userId)
       ]);
-
-      console.log('✅ Loaded data:', { 
-        profileExists: !!profile, 
-        enrolledCount: dashboardData.enrolledCourses?.length || 0,
-        favoritedCount: dashboardData.favoritedCourses?.length || 0 
-      });
 
       setUserProfile(profile);
       setEnrolledCourses(dashboardData.enrolledCourses || []);
       setFavoritedCourses(dashboardData.favoritedCourses || []);
+      setFavoritedMaterialIds(favoritedMaterials);
       setError(null);
-      
     } catch (err) {
-      console.error('❌ Error loading user data:', err);
+      console.error('Error loading user data:', err);
       setError(err.message);
     }
   };
+
+  // Load favorited material IDs
+  const loadFavoritedMaterialIds = async (userId) => {
+    try {
+      const { data, error } = await supabase
+        .from('user_favorited_materials')
+        .select('material_id')
+        .eq('user_id', userId);
+      
+      if (error) throw error;
+      return new Set(data?.map(f => f.material_id) || []);
+    } catch (err) {
+      console.error('Error loading favorited materials:', err);
+      return new Set();
+    }
+  };
+
+  // Toggle material favorite - single source of truth
+  const toggleMaterialFavorite = useCallback(async (materialId) => {
+    if (!user) {
+      setError('Please sign in to save favorites');
+      return { success: false, isFavorited: false };
+    }
+
+    const wasFavorited = favoritedMaterialIds.has(materialId);
+    
+    // Optimistic update
+    setFavoritedMaterialIds(prev => {
+      const next = new Set(prev);
+      if (wasFavorited) {
+        next.delete(materialId);
+      } else {
+        next.add(materialId);
+      }
+      return next;
+    });
+
+    try {
+      if (wasFavorited) {
+        const { error } = await supabase
+          .from('user_favorited_materials')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('material_id', materialId);
+        
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from('user_favorited_materials')
+          .insert({
+            user_id: user.id,
+            material_id: materialId,
+            favorited_at: new Date().toISOString()
+          });
+        
+        if (error && error.code !== '23505') throw error;
+      }
+      
+      return { success: true, isFavorited: !wasFavorited };
+    } catch (err) {
+      console.error('Error toggling favorite:', err);
+      
+      // Rollback on error
+      setFavoritedMaterialIds(prev => {
+        const next = new Set(prev);
+        if (wasFavorited) {
+          next.add(materialId);
+        } else {
+          next.delete(materialId);
+        }
+        return next;
+      });
+      
+      setError('Failed to update favorite');
+      return { success: false, isFavorited: wasFavorited };
+    }
+  }, [user, favoritedMaterialIds]);
+
+  // Check if material is favorited
+  const isMaterialFavorited = useCallback((materialId) => {
+    return favoritedMaterialIds.has(materialId);
+  }, [favoritedMaterialIds]);
 
   // Refresh user data
   const refreshUserData = async () => {
@@ -154,12 +205,9 @@ export const UserProvider = ({ children }) => {
     }
 
     try {
-      console.log('📝 Enrolling in course:', courseId);
-      
       const result = await UserDataService.enrollUserInCourse(user.id, courseId);
       
       if (result) {
-        // Update local state immediately
         const newEnrollment = {
           course_id: String(courseId),
           user_id: user.id,
@@ -168,22 +216,16 @@ export const UserProvider = ({ children }) => {
         };
         
         setEnrolledCourses(prev => {
-          const exists = prev.some(course => 
-            String(course.course_id) === String(courseId)
-          );
-          
-          if (exists) return prev;
+          if (prev.some(c => String(c.course_id) === String(courseId))) return prev;
           return [...prev, newEnrollment];
         });
         
-        console.log('✅ Successfully enrolled in course');
         setError(null);
         return true;
       }
-      
       return false;
     } catch (err) {
-      console.error('❌ Error enrolling in course:', err);
+      console.error('Error enrolling in course:', err);
       setError(err.message);
       return false;
     }
@@ -193,62 +235,20 @@ export const UserProvider = ({ children }) => {
     if (!user) return false;
 
     try {
-      console.log('🗑️ Unenrolling from course:', courseId);
-      
       const success = await UserDataService.unenrollUserFromCourse(user.id, courseId);
       
       if (success) {
-        setEnrolledCourses(prev => prev.filter(course => 
-          String(course.course_id) !== String(courseId)
-        ));
-        
-        console.log('✅ Successfully unenrolled from course');
+        setEnrolledCourses(prev => prev.filter(c => String(c.course_id) !== String(courseId)));
         setError(null);
         return true;
       }
-      
       return false;
     } catch (err) {
-      console.error('❌ Error unenrolling from course:', err);
+      console.error('Error unenrolling from course:', err);
       setError(err.message);
       return false;
     }
   };
-
-  const addMaterialToFavorites = async (material) => {
-    if (!user) {
-          setError('User not authenticated');
-          return false;
-        }
-    try{
-
-      let result = await MaterialsService.addToFavorites(user.id, material.id); 
-       if (result) {
-        const newFavorite = {
-          material_id: String(material.id),
-          user_id: user.id,
-          favorited_at: new Date().toISOString()
-        };
-        
-        setFavoritedMaterials(prev => {
-          const exists = prev.some(mat => 
-            String(mat.id) === String(material.id)
-          );
-          
-          if (exists) return prev;
-          return [...prev, newFavorite];
-        });
-        
-        console.log('✅ Successfully added course to favorites');
-        setError(null);
-        return true;
-      }
-
-    } catch (err) {
-      console.log("couldn't add material to favorites", err);
-    }
-  }
-
 
   // Course favorites functions
   const addCourseToFavorites = async (courseId) => {
@@ -258,8 +258,6 @@ export const UserProvider = ({ children }) => {
     }
 
     try {
-      console.log('⭐ Adding course to favorites:', courseId);
-      
       const result = await UserDataService.addCourseToFavorites(user.id, courseId);
       
       if (result) {
@@ -270,22 +268,16 @@ export const UserProvider = ({ children }) => {
         };
         
         setFavoritedCourses(prev => {
-          const exists = prev.some(course => 
-            String(course.course_id) === String(courseId)
-          );
-          
-          if (exists) return prev;
+          if (prev.some(c => String(c.course_id) === String(courseId))) return prev;
           return [...prev, newFavorite];
         });
         
-        console.log('✅ Successfully added course to favorites');
         setError(null);
         return true;
       }
-      
       return false;
     } catch (err) {
-      console.error('❌ Error adding course to favorites:', err);
+      console.error('Error adding course to favorites:', err);
       setError(err.message);
       return false;
     }
@@ -295,23 +287,16 @@ export const UserProvider = ({ children }) => {
     if (!user) return false;
 
     try {
-      console.log('🗑️ Removing course from favorites:', courseId);
-      
       const success = await UserDataService.removeCourseFromFavorites(user.id, courseId);
       
       if (success) {
-        setFavoritedCourses(prev => prev.filter(course => 
-          String(course.course_id) !== String(courseId)
-        ));
-        
-        console.log('✅ Successfully removed course from favorites');
+        setFavoritedCourses(prev => prev.filter(c => String(c.course_id) !== String(courseId)));
         setError(null);
         return true;
       }
-      
       return false;
     } catch (err) {
-      console.error('❌ Error removing course from favorites:', err);
+      console.error('Error removing course from favorites:', err);
       setError(err.message);
       return false;
     }
@@ -325,19 +310,15 @@ export const UserProvider = ({ children }) => {
       const result = await UserDataService.updateCourseProgress(user.id, courseId, progress);
       
       if (result) {
-        setEnrolledCourses(prev => prev.map(course => 
-          String(course.course_id) === String(courseId) 
-            ? { ...course, progress }
-            : course
+        setEnrolledCourses(prev => prev.map(c => 
+          String(c.course_id) === String(courseId) ? { ...c, progress } : c
         ));
-        
         setError(null);
         return true;
       }
-      
       return false;
     } catch (err) {
-      console.error('❌ Error updating course progress:', err);
+      console.error('Error updating course progress:', err);
       setError(err.message);
       return false;
     }
@@ -345,42 +326,19 @@ export const UserProvider = ({ children }) => {
 
   // Helper functions
   const isEnrolledInCourse = (courseId) => {
-    const normalizedId = String(courseId);
-    return enrolledCourses.some(course => 
-      String(course.course_id) === normalizedId
-    );
+    return enrolledCourses.some(c => String(c.course_id) === String(courseId));
   };
 
   const isCourseFavorited = (courseId) => {
-    const normalizedId = String(courseId);
-    return favoritedCourses.some(course => 
-      String(course.course_id) === normalizedId
-    );
+    return favoritedCourses.some(c => String(c.course_id) === String(courseId));
   };
 
   const getCourseProgress = (courseId) => {
-    const course = enrolledCourses.find(course => 
-      String(course.course_id) === String(courseId)
-    );
+    const course = enrolledCourses.find(c => String(c.course_id) === String(courseId));
     return course?.progress || 0;
   };
 
-  const clearError = () => {
-    setError(null);
-  };
-
-  // Debug function
-  const debugUserData = () => {
-    console.log('=== USER CONTEXT DEBUG ===');
-    console.log('User:', user?.id);
-    console.log('User Profile:', userProfile);
-    console.log('Enrolled Courses:', enrolledCourses.length);
-    console.log('Favorited Courses:', favoritedCourses.length);
-    console.log('Loading:', loading);
-    console.log('Initializing:', initializing);
-    console.log('Error:', error);
-    console.log('=========================');
-  };
+  const clearError = () => setError(null);
 
   const contextValue = {
     // User state
@@ -388,16 +346,19 @@ export const UserProvider = ({ children }) => {
     userProfile,
     enrolledCourses,
     favoritedCourses,
-    favoritedMaterials, 
-    loading: loading || initializing, // Include initializing in loading state
+    favoritedMaterialIds,
+    loading: loading || initializing,
     error,
 
-    // Actions
+    // Material favorites
+    toggleMaterialFavorite,
+    isMaterialFavorited,
+
+    // Course actions
     enrollInCourse,
     unenrollFromCourse,
     addCourseToFavorites,
     removeCourseFromFavorites,
-    addMaterialToFavorites,
     updateCourseProgress,
     refreshUserData,
 
@@ -406,7 +367,6 @@ export const UserProvider = ({ children }) => {
     isCourseFavorited,
     getCourseProgress,
     clearError,
-    debugUserData,
   };
 
   return (

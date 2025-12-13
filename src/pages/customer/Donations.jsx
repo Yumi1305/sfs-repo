@@ -147,10 +147,10 @@ function Donations(){
             </div>
             <div className={styles.left} style={{ color: "white" }}>
               <h1 className={styles.header1}>
-                Make a difference in accessible education.
+                Help us sustain our large learning platform.
               </h1>
               <h3 className={styles.header2}>
-                Your impact is just one click away.
+                Your impact is just one click away
               </h3>
               <button
                 className={styles["donate-btn"]}
@@ -191,12 +191,11 @@ function Donations(){
               ref={missionRef}
             >
               <span className={styles.catch}>
-                Education should not be a privilege only some can afford.{" "}
+                All the resources you could ever need in one website. {" "}
               </span>
-              Students for Students is a nonprofit organization that fights
-              income inequality by providing{" "}
+              Students for Students is a nonprofit organization creating a virtual peer learning environment.{" "}
               <span className={styles.highlight}>
-                affordable, high quality education.
+                Help us save your time.
               </span>{" "}
             </h1>
           </section>

@@ -37,6 +37,7 @@ export default function ProfileDropdown({ open }) {
     } catch (err) {
       console.error('Unexpected error during logout:', err);
     } finally {
+      navigate('/login');
       setLoggingOut(false);
     }
   };

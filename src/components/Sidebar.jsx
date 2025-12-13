@@ -1,49 +1,81 @@
 import styles from "../components/Sidebar.module.css";
-import { FaSearch } from "react-icons/fa";
 import { useState } from "react";
-import ThemeToggle from "./ThemeToggle";
+import { Filter, X } from "lucide-react";
 import clsx from "clsx";
 
-
 const categories = ["Math", "Science", "Art", "AP", "Language", "History", "Existential", "Programming", "Other"];
-const sortBy = ["popular", "latest", "grade"]
 
-
-function Sidebar({onSelectCategory}) {
+function Sidebar({ onSelectCategory }) {
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [isOpen, setIsOpen] = useState(false);
+
   const handleCategoryClick = (category) => {
-    if (category === selectedCategory){
-      setSelectedCategory(null)
-      onSelectCategory(null)
+    if (category === selectedCategory) {
+      setSelectedCategory(null);
+      onSelectCategory(null);
+    } else {
+      onSelectCategory(category.toLowerCase());
+      setSelectedCategory(category);
     }
-    else{onSelectCategory(category.toLowerCase());
-    console.log(category.toLowerCase())
-    setSelectedCategory(category);
-    }
-
-    console.log('HEREHEHREHRHERHEE', selectedCategory)
-
   };
-  return (
-    <div className={styles["side-bar"]}>
 
-      <div className={styles["filter-section"]}>
-        <h3>Filter by Category</h3>
-        <div className={styles["category-list"]}>
-          {categories.map((category) => (
-            <button
-              key={category}
-              className={clsx(styles["category-button"], 
-                selectedCategory === category && styles["active"])}
-              onClick={() => handleCategoryClick(category)}
-            >
-              {category}
-            </button>
-          ))}
+  const toggleSidebar = () => {
+    setIsOpen(!isOpen);
+  };
+
+  const closeSidebar = () => {
+    setIsOpen(false);
+  };
+
+  return (
+    <>
+      {/* Mobile Filter Button */}
+      <button className={styles.mobileFilterBtn} onClick={toggleSidebar}>
+        <Filter size={18} />
+        <span>Filters</span>
+        {selectedCategory && <span className={styles.filterBadge}>1</span>}
+      </button>
+
+      {/* Mobile Overlay */}
+      <div 
+        className={clsx(styles.overlay, isOpen && styles.open)} 
+        onClick={closeSidebar}
+      />
+
+      {/* Sidebar */}
+      <aside className={clsx(styles.sideBar, isOpen && styles.open)}>
+        <div className={styles.sidebarHeader}>
+          <h2>Filters</h2>
+          <button className={styles.closeBtn} onClick={closeSidebar}>
+            <X size={20} />
+          </button>
         </div>
-      </div>
-      <ThemeToggle className={styles["toggle"]}></ThemeToggle>
-    </div>
+
+        <div className={styles.filterSection}>
+          <h3>Filter by Category</h3>
+          <div className={styles.categoryList}>
+            {categories.map((category) => (
+              <button
+                key={category}
+                className={clsx(
+                  styles.categoryButton,
+                  selectedCategory === category && styles.active
+                )}
+                onClick={() => handleCategoryClick(category)}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {selectedCategory && (
+          <button className={styles.clearBtn} onClick={() => handleCategoryClick(selectedCategory)}>
+            Clear Filter
+          </button>
+        )}
+      </aside>
+    </>
   );
 }
 

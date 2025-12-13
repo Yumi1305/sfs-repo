@@ -36,12 +36,14 @@ function App() {
     <CourseProvider>
     <CourseStorageProvider>
       <Routes>
-        <Route path="/" element={<WelcomePage />} />
+        <Route path="/" element={<MainPage />} />
+        <Route path='/login' element = {<WelcomePage />}/>
         <Route path="/mainpg" element={
-          <ProtectedRoute>
+          // <ProtectedRoute>
             <MainPage />
-            </ProtectedRoute>
+            // </ProtectedRoute>
           } />
+          
         <Route path="/course/:id" element={
           <ProtectedRoute>
           <CoursePage />
