@@ -10,6 +10,7 @@ import clsx from "clsx";
 import { decodeHtmlEntities } from "../../services/helpers";
 import { useUserContext } from '../../hooks/useUserContext';
 import { supabase } from "../../lib/supabase";
+import ErrorMessage from "../../components/ErrorMessage";
 
 function MainPage() {
   const { courseList, loading: coursesLoading } = useCourses();
@@ -211,15 +212,15 @@ function MainPage() {
         )}
 
         <section className={styles["main-section"]}>
-          {error && (
-            <div className={styles["error-message"]}>
-              <p>⚠️ {error}</p>
-              <button onClick={clearError} className={styles["clear-error-btn"]}>
-                ✕ Dismiss
-              </button>
-            </div>
-          )}
-
+          
+            <ErrorMessage error={error}  onDismiss={()=>{clearError()}} ></ErrorMessage>
+            {/* // <div className={styles["error-message"]}>
+            //   <p>⚠️ {error}</p>
+            //   <button onClick={clearError} className={styles["clear-error-btn"]}>
+            //     ✕ Dismiss
+            //   </button>
+            // </div> */}
+ 
           {/* Courses */}
           {coursesToDisplay.map(course => (
             <Course key={`course-${course.ID}`} course={course} />

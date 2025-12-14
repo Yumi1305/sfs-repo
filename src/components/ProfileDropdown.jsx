@@ -5,11 +5,13 @@ import { supabase } from '../lib/supabase';
 import { useState } from 'react';
 import LogoutModal from './LogoutModal';
 import { Link } from 'react-router-dom';
+import { useUserContext } from '../hooks/useUserContext';
 
 export default function ProfileDropdown({ open }) {
   const navigate = useNavigate();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
+  const {user} = useUserContext();
 
   const handleLogoutClick = () => {
     setShowLogoutModal(true);
@@ -41,7 +43,37 @@ export default function ProfileDropdown({ open }) {
       setLoggingOut(false);
     }
   };
-  return (
+  // if (!user){
+  //   return(
+  //     <div className={styles.wrapper}>
+  //       <div className={styles.item} onClick={()=>{
+  //         navigate('/login');
+  //       }}>
+  //         Sign In
+  //       </div>
+  //     </div>
+  //   )
+  // }
+  if (!open){
+    return null
+  }
+  
+  if (!user){
+    return (
+      <div className={styles.wrapper}>
+        <div className={styles.signInDropdown}>
+          <div 
+            className={styles.signInItem}
+            onClick={() => navigate('/login')} 
+          >
+            Sign In
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (   
     <div className={styles.wrapper}>
       {open && !showLogoutModal ? (
         <div className={styles.dropdown}>
@@ -66,5 +98,6 @@ export default function ProfileDropdown({ open }) {
       />
       )}
     </div>
+    
   );
 } 

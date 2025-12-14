@@ -8,32 +8,91 @@
   position: absolute;
   top: 2.5rem;
   right: -2rem;
-  background-color: #434344;
+  background-color: rgb(30, 30, 34);
   color: white;
-  border-radius: 10px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   min-width: 200px;
   padding: 0.5rem 0;
   z-index: 1000;
   transition: all 0.2s ease;
-  font-family: inter;
+  font-family: Inter, sans-serif;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .item {
   padding: 0.75rem 1rem;
-  font-size: 0.85rem;
+  font-size: 0.875rem;
   cursor: pointer;
-  transition: background 0.2s;
-  font-weight: 400;
+  transition: all 0.2s;
+  font-weight: 500;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
   text-decoration: none;
-  color: white;
+  color: #e5e7eb;
 }
 
 .item:hover {
   background-color: rgba(255, 255, 255, 0.08);
+  color: white;
+}
+
+.item:first-child {
+  border-radius: 12px 12px 0 0;
+}
+
+.item:last-child {
+  border-radius: 0 0 12px 12px;
+}
+
+
+.signInDropdown {
+  position: absolute;
+  top: 2.5rem;
+  right: -2rem;
+  background-color: rgb(30, 30, 34);
+  color: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  min-width: 160px;
+  padding: 0.5rem;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+
+.signInItem {
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #e5e7eb;
+  background: transparent;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.signInItem:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: white;
 }
 
 .divider {
@@ -46,7 +105,8 @@
 
 /* Mobile */
 @media (max-width: 768px) {
-  .dropdown {
+  .dropdown,
+  .signInDropdown {
     position: fixed;
     top: auto;
     bottom: 0;
@@ -65,6 +125,12 @@
     gap: 0.75rem;
   }
 
+  .signInItem {
+    margin: 1rem 1rem 0.5rem;
+    padding: 1rem 1.5rem;
+    font-size: 1rem;
+  }
+
   .divider {
     margin: 0.5rem 1.5rem;
   }
@@ -81,12 +147,17 @@
 
 /* Small Mobile */
 @media (max-width: 480px) {
-  .dropdown {
+  .dropdown,
+  .signInDropdown {
     padding: 0.75rem 0 1.5rem;
   }
 
   .item {
     padding: 0.875rem 1.25rem;
     font-size: 0.9375rem;
+  }
+
+  .signInItem {
+    margin: 0.75rem 1rem 0.5rem;
   }
 }

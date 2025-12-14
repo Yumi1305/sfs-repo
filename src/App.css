@@ -52,6 +52,15 @@ html, body, #root {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  animation: fade-in 0.8s linear; 
+}
+
+@keyframes fade-in {
+  from{
+    transform: translateY(2rem);
+  } to{
+    transform: translateY(0)
+  }
 }
 
 .clear-error-btn {
