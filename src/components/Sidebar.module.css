@@ -12,6 +12,14 @@
   z-index: 50;
   overflow-y: auto;
   box-sizing: border-box;
+  
+  /* Hide scrollbar */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.sideBar::-webkit-scrollbar {
+  display: none;
 }
 
 .sidebarHeader {
@@ -167,20 +175,28 @@
 
   /* Sidebar - Slide up from bottom */
   .sideBar {
-    position: fixed;
-    top: auto;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    width: 100%;
-    height: auto;
-    max-height: 70vh;
-    padding: 0;
-    border-radius: 1.5rem 1.5rem 0 0;
-    transform: translateY(100%);
-    transition: transform 0.3s ease;
-    z-index: 96;
-  }
+  width: 200px;
+  height: calc(100vh - 4rem);
+  background-color: var(--black, rgb(18, 18, 18));
+  padding: 1.5rem;
+  color: white;
+  font-family: sans-serif;
+  position: fixed;
+  left: 0;
+  top: 4rem;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+  z-index: 50;
+  overflow-y: auto;
+  box-sizing: border-box;
+  
+  /* Hide scrollbar */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.sideBar::-webkit-scrollbar {
+  display: none;
+}
 
   .sideBar.open {
     transform: translateY(0);
