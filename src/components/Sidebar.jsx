@@ -2,22 +2,41 @@ import styles from "../components/Sidebar.module.css";
 import { useState } from "react";
 import { Filter, X } from "lucide-react";
 import clsx from "clsx";
+import { BiCategory } from "react-icons/bi";
 
-const categories = ["Math", "Science", "Art", "AP", "Language", "History", "Existential", "Programming", "Other"];
+const categories = [
+  'Math',
+  'Science',
+  'English',
+  'History',
+  'Computer Science',
+  'Foreign Language',
+  'Art',
+  'Music',
+  'Economics',
+  'Psychology',
+  'Biology',
+  'Chemistry',
+  'Physics',
+  'SAT/ACT Prep',
+  'AP Courses',
+  'Other'];
 
 function Sidebar({ onSelectCategory }) {
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedCategories, setSelectedCategories] = useState([]); 
   const [isOpen, setIsOpen] = useState(false);
 
   const handleCategoryClick = (category) => {
-    if (category === selectedCategory) {
-      setSelectedCategory(null);
-      onSelectCategory(null);
-    } else {
-      onSelectCategory(category.toLowerCase());
-      setSelectedCategory(category);
-    }
-  };
+  let newCategories;
+  if (selectedCategories.includes(category)) {
+    newCategories = selectedCategories.filter(cat => cat !== category);
+  } else {
+    newCategories = [...selectedCategories, category];
+  }
+  setSelectedCategories(newCategories);
+  onSelectCategory(newCategories);  // ✅ Pass the new value
+};
 
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
@@ -59,7 +78,7 @@ function Sidebar({ onSelectCategory }) {
                 key={category}
                 className={clsx(
                   styles.categoryButton,
-                  selectedCategory === category && styles.active
+                  selectedCategories.includes(category) && styles.active
                 )}
                 onClick={() => handleCategoryClick(category)}
               >
@@ -70,7 +89,7 @@ function Sidebar({ onSelectCategory }) {
         </div>
 
         {selectedCategory && (
-          <button className={styles.clearBtn} onClick={() => handleCategoryClick(selectedCategory)}>
+          <button className={styles.clearBtn} onClick={() => setSelectedCategories([])}>
             Clear Filter
           </button>
         )}

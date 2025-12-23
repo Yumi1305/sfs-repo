@@ -3,10 +3,10 @@ import { supabase } from '../lib/supabase';
 import { X } from 'lucide-react';
 import styles from './SignInModal.module.css';
 
-function SignInModal({onClose}) {
+function SignInModal({isOpen, onClose}) {
   const navigate = useNavigate();
 
-  // if (!isOpen) return null;
+  if (!isOpen) return null;
 
   const handleGoogleSignIn = async () => {
     try {

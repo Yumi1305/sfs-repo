@@ -28,6 +28,8 @@ function MainPage() {
   const [categoryResults, setCategoryResults] = useState({ courses: [], materials: [] });
   const [contentType, setContentType] = useState('all');
 
+  const [categories, setCategories] = useState([]); 
+
   // Fetch approved study materials
   useEffect(() => {
     const fetchMaterials = async () => {
@@ -55,7 +57,7 @@ function MainPage() {
   // Handle search
   const handleSearch = (term) => {
     setSearchTerm(term);
-    setCategory(null);
+    setCategories([]); 
     
     if (!term) {
       setSearchResults({ courses: [], materials: [] });
@@ -78,8 +80,10 @@ function MainPage() {
   };
 
   // Handle category selection
-  const handleSelectCategory = (cat) => {
-    setCategory(cat);
+  const handleSelectCategory = (selectedCats) => {
+    setCategories(selectedCats)
+    console.log(selectedCats)
+    // setCategory(cat);
     setSearchTerm('');
     setSearchResults({ courses: [], materials: [] });
 
@@ -105,24 +109,22 @@ function MainPage() {
     };
 
     const filteredCourses = courseList.filter(course => 
-      getCourseTags(course).includes(cat)
-    );
-    
-    const subjectName = categoryToSubject[cat] || cat;
+    getCourseTags(course).some(tag => selectedCats.includes(tag.toLowerCase()))
+  );
+  
     const filteredMaterials = materials.filter(material =>
-      material.subjects?.some(s => 
-        s.toLowerCase() === subjectName.toLowerCase() ||
-        s.toLowerCase().includes(cat.toLowerCase())
-      )
+      material.subjects?.some(s => selectedCats.includes(s))
     );
     
     setCategoryResults({ courses: filteredCourses, materials: filteredMaterials });
+    console.log(categoryResults); 
+    console.log(filteredMaterials); 
   };
 
   const clearFilters = () => {
     setSearchTerm('');
     setSearchResults({ courses: [], materials: [] });
-    setCategory(null);
+    setCategories([])
     setCategoryResults({ courses: [], materials: [] });
   };
 
@@ -154,7 +156,7 @@ function MainPage() {
   if (searchTerm) {
     coursesToDisplay = searchResults.courses;
     materialsToDisplay = searchResults.materials;
-  } else if (category) {
+  } else if (categories.length > 0) {
     coursesToDisplay = categoryResults.courses;
     materialsToDisplay = categoryResults.materials;
   }
@@ -164,7 +166,7 @@ function MainPage() {
   if (contentType === 'materials') coursesToDisplay = [];
 
   const totalItems = coursesToDisplay.length + materialsToDisplay.length;
-  const hasActiveFilter = searchTerm || category;
+  const hasActiveFilter = searchTerm || categories.length > 0;
 
   return (
     <>

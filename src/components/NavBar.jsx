@@ -7,12 +7,14 @@ import { Link, useLocation } from 'react-router-dom';
 import SearchBar from './SearchBar';
 import UploadMaterialModal from './UploadMaterialModal';
 import { useUserContext } from '../hooks/useUserContext';
+import SignInModal from './SignInModal'; 
 
 function NavBar({ onSearch }) {
   const [profileOpen, setProfileOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [uploadNotification, setUploadNotification] = useState(null);
+  const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
   const location = useLocation();
   const { user } = useUserContext();
 
@@ -50,13 +52,23 @@ function NavBar({ onSearch }) {
   };
 
   const handleOpenUploadModal = () => {
-    setIsUploadModalOpen(true);
-    setMobileMenuOpen(false);
+    if (user){
+      setIsUploadModalOpen(true);
+      setMobileMenuOpen(false);
+    } else {
+      setIsSignInModalOpen(true); 
+    }
+    
+    
   };
 
   const handleCloseUploadModal = () => {
     setIsUploadModalOpen(false);
   };
+
+  const handleCloseSignInModal =() => {
+    setIsSignInModalOpen(false); 
+    }
 
   const handleMaterialSubmit = async (materialData) => {
     if (!user) throw new Error('User not authenticated');
@@ -170,6 +182,7 @@ function NavBar({ onSearch }) {
         onClose={handleCloseUploadModal}
         onSubmit={handleMaterialSubmit}
       />
+      <SignInModal isOpen={isSignInModalOpen} onClose={handleCloseSignInModal}></SignInModal>
 
       {uploadNotification && (
         <div className={clsx(styles.notificationToast, styles[`notification-${uploadNotification.type}`])}>
