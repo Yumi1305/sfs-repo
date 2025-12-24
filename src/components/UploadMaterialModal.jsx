@@ -8,6 +8,7 @@ const SUBJECTS = [
   'English',
   'History',
   'Computer Science',
+  'Web Development', 
   'Foreign Language',
   'Art',
   'Music',

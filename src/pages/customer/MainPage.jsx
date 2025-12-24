@@ -96,6 +96,7 @@ function MainPage() {
       'english': 'English',
       'history': 'History',
       'computer-science': 'Computer Science',
+      'web-developmnet': 'Web Development', 
       'foreign-language': 'Foreign Language',
       'art': 'Art',
       'music': 'Music',

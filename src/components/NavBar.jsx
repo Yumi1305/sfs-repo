@@ -8,6 +8,7 @@ import SearchBar from './SearchBar';
 import UploadMaterialModal from './UploadMaterialModal';
 import { useUserContext } from '../hooks/useUserContext';
 import SignInModal from './SignInModal'; 
+import MaterialsService from '../services/materialsService'
 
 function NavBar({ onSearch }) {
   const [profileOpen, setProfileOpen] = useState(false);
