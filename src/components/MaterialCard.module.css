@@ -1,26 +1,27 @@
 /* MaterialCard.module.css */
 .card {
   background: rgb(30, 30, 34);
-  border-radius: 12px;
+  border-radius: 10px;
   overflow: hidden;
   cursor: pointer;
   transition: all 0.2s ease;
   border: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   flex-direction: column;
+  height: 100%;
 }
 
 .card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-2px);
   border-color: rgba(255, 255, 255, 0.15);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
 }
 
-/* Thumbnail */
+/* Thumbnail - Reduced aspect ratio */
 .thumbnail {
   position: relative;
   width: 100%;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 2 / 1; /* Changed from 16/9 to 2/1 for shorter height */
   overflow: hidden;
   background: rgb(24, 24, 27);
   flex-shrink: 0;
@@ -42,8 +43,8 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 56px;
-  height: 56px;
+  width: 44px;
+  height: 44px;
   background: rgba(239, 68, 68, 0.9);
   border-radius: 50%;
   display: flex;
@@ -58,157 +59,69 @@
   transform: translate(-50%, -50%) scale(1.1);
 }
 
-/* Type overlay for non-video thumbnails */
 .typeOverlay {
   position: absolute;
-  bottom: 8px;
-  right: 8px;
+  bottom: 6px;
+  right: 6px;
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 8px;
+  gap: 3px;
+  padding: 3px 6px;
   background: rgba(0, 0, 0, 0.7);
   border-radius: 4px;
   color: #ffffff;
-  font-size: 0.6875rem;
+  font-size: 0.625rem;
   font-weight: 600;
   text-transform: uppercase;
 }
 
-/* Placeholder thumbnail for materials without images */
 .placeholderThumbnail {
   width: 100%;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 2 / 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 0.375rem;
   background: rgba(255, 255, 255, 0.03);
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   flex-shrink: 0;
 }
 
 .placeholderThumbnail span {
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   opacity: 0.8;
 }
 
-/* Content */
+/* Content - Reduced padding */
 .content {
-  padding: 1.25rem;
+  padding: 0.875rem;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.5rem;
   flex: 1;
 }
 
-/* Header */
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 0.5rem;
 }
 
 .typeBadge {
   display: inline-flex;
   align-items: center;
-  gap: 0.375rem;
-  padding: 0.375rem 0.75rem;
-  border-radius: 6px;
-  font-size: 0.75rem;
+  gap: 0.3rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.6875rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.025em;
-}
-
-.externalIcon {
-  color: #6b7280;
-  opacity: 0;
-  transition: opacity 0.2s ease;
-}
-
-.card:hover .externalIcon {
-  opacity: 1;
-}
-
-/* Title */
-.title {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 600;
-  color: #ffffff;
-  line-height: 1.4;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-/* Description */
-.description {
-  margin: 0;
-  font-size: 0.875rem;
-  color: #9ca3af;
-  line-height: 1.5;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  font-family: satoshi;
-}
-
-/* Tags */
-.tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.subjectTag {
-  padding: 0.25rem 0.625rem;
-  background: rgba(59, 130, 246, 0.15);
-  color: #60a5fa;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-
-.moreTag {
-  padding: 0.25rem 0.625rem;
-  background: rgba(255, 255, 255, 0.08);
-  color: #9ca3af;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-
-/* Footer */
-.footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-top: 0.75rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-  margin-top: auto;
-  gap: 0.75rem;
-}
-
-.footerLeft {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  min-width: 0;
-  flex: 1;
-}
-
-.difficulties {
-  display: flex;
-  gap: 0.375rem;
-  flex-wrap: wrap;
 }
 
 .difficultyTag {
@@ -218,26 +131,80 @@
   border-radius: 4px;
   font-size: 0.6875rem;
   font-weight: 500;
+  text-transform: capitalize;
 }
 
-.date {
+.title {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.description {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: #9ca3af;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-family: Satoshi, Inter, sans-serif;
+}
+
+/* Footer - Combined tags and button */
+.footer {
   display: flex;
   align-items: center;
-  gap: 0.375rem;
-  color: #6b7280;
-  font-size: 0.75rem;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: auto;
+  padding-top: 0.5rem;
 }
 
-/* Favorite Button */
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.subjectTag {
+  padding: 0.2rem 0.5rem;
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  border-radius: 4px;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.moreTag {
+  padding: 0.2rem 0.5rem;
+  background: rgba(255, 255, 255, 0.08);
+  color: #9ca3af;
+  border-radius: 4px;
+  font-size: 0.6875rem;
+  font-weight: 500;
+}
+
+/* Favorite Button - Smaller */
 .favoriteButton {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
+  border-radius: 6px;
   color: #9ca3af;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -266,37 +233,24 @@
   cursor: not-allowed;
 }
 
-/* ========== RESPONSIVE BREAKPOINTS ========== */
-
-/* Tablet */
+/* Responsive */
 @media (max-width: 1024px) {
   .content {
-    padding: 1rem;
-    gap: 0.625rem;
+    padding: 0.75rem;
   }
 
   .title {
-    font-size: 0.9375rem;
+    font-size: 0.875rem;
   }
 
   .description {
-    font-size: 0.8125rem;
-  }
-
-  .playButton {
-    width: 48px;
-    height: 48px;
+    font-size: 0.75rem;
   }
 }
 
-/* Mobile */
 @media (max-width: 768px) {
-  .card {
-    border-radius: 10px;
-  }
-
   .card:hover {
-    transform: none; /* Disable hover transform on touch devices */
+    transform: none;
   }
 
   .card:active {
@@ -304,72 +258,13 @@
   }
 
   .content {
-    padding: 1rem;
-    gap: 0.5rem;
+    padding: 0.75rem;
+    gap: 0.4rem;
   }
 
   .typeBadge {
-    padding: 0.3rem 0.6rem;
-    font-size: 0.6875rem;
-  }
-
-  .title {
-    font-size: 0.9375rem;
-    -webkit-line-clamp: 2;
-  }
-
-  .description {
-    font-size: 0.8125rem;
-    -webkit-line-clamp: 2;
-  }
-
-  .tags {
-    gap: 0.375rem;
-  }
-
-  .subjectTag,
-  .moreTag {
-    padding: 0.2rem 0.5rem;
-    font-size: 0.6875rem;
-  }
-
-  .footer {
-    padding-top: 0.625rem;
-  }
-
-  .difficultyTag {
     padding: 0.2rem 0.4rem;
     font-size: 0.625rem;
-  }
-
-  .date {
-    font-size: 0.6875rem;
-  }
-
-  .favoriteButton {
-    width: 40px;
-    height: 40px;
-  }
-
-  .playButton {
-    width: 44px;
-    height: 44px;
-  }
-
-  /* Always show external icon on mobile */
-  .externalIcon {
-    opacity: 0.5;
-  }
-}
-
-/* Small Mobile */
-@media (max-width: 480px) {
-  .content {
-    padding: 0.875rem;
-  }
-
-  .header {
-    gap: 0.5rem;
   }
 
   .title {
@@ -380,7 +275,34 @@
     font-size: 0.75rem;
   }
 
-  .placeholderThumbnail span {
+  .footer {
+    padding-top: 0.4rem;
+  }
+
+  .favoriteButton {
+    width: 36px;
+    height: 36px;
+  }
+
+  .externalIcon {
+    opacity: 0.5;
+  }
+}
+
+@media (max-width: 480px) {
+  .content {
+    padding: 0.625rem;
+  }
+
+  .title {
+    font-size: 0.8125rem;
+  }
+
+  .description {
     font-size: 0.6875rem;
+  }
+
+  .placeholderThumbnail span {
+    font-size: 0.625rem;
   }
 }

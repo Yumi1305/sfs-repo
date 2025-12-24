@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from './MaterialCard.module.css';
-import { Link as LinkIcon, Youtube, FileText, File, ExternalLink, Clock, Bookmark } from 'lucide-react';
+import { Link as LinkIcon, Youtube, FileText, File, Bookmark } from 'lucide-react';
 import { useUserContext } from '../hooks/useUserContext';
 
 const TYPE_CONFIG = {
@@ -27,26 +27,17 @@ function MaterialCard({ material }) {
   };
 
   const handleFavoriteClick = async (e) => {
-
     e.preventDefault();
     e.stopPropagation();
     
-    if (!user || isToggling){
-      console.log("not logged in!")
+    if (!user || isToggling) {
+      console.log("not logged in!");
+      return;
     }
-
     
     setIsToggling(true);
     await toggleMaterialFavorite(material.id);
     setIsToggling(false);
-  };
-
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: 'numeric',
-      year: 'numeric'
-    });
   };
 
   const getYoutubeThumbnail = (url) => {
@@ -67,19 +58,19 @@ function MaterialCard({ material }) {
           <img src={thumbnail} alt={material.title} />
           {material.type === 'youtube' && (
             <div className={styles.playButton}>
-              <Youtube size={24} />
+              <Youtube size={20} />
             </div>
           )}
           {material.type === 'pdf' && (
             <div className={styles.typeOverlay}>
-              <FileText size={20} />
+              <FileText size={16} />
               <span>PDF</span>
             </div>
           )}
         </div>
       ) : (
         <div className={styles.placeholderThumbnail} style={{ backgroundColor: `${config.color}15` }}>
-          <IconComponent size={40} style={{ color: config.color }} />
+          <IconComponent size={32} style={{ color: config.color }} />
           <span style={{ color: config.color }}>{config.label}</span>
         </div>
       )}
@@ -91,10 +82,12 @@ function MaterialCard({ material }) {
             className={styles.typeBadge}
             style={{ backgroundColor: `${config.color}20`, color: config.color }}
           >
-            <IconComponent size={14} />
+            <IconComponent size={12} />
             <span>{config.label}</span>
           </div>
-          <ExternalLink size={16} className={styles.externalIcon} />
+          {material.difficulties?.[0] && (
+            <span className={styles.difficultyTag}>{material.difficulties[0]}</span>
+          )}
         </div>
 
         <h3 className={styles.title}>{material.title}</h3>
@@ -103,38 +96,24 @@ function MaterialCard({ material }) {
           <p className={styles.description}>{material.description}</p>
         )}
 
-        <div className={styles.tags}>
-          {material.subjects?.slice(0, 3).map((subject, i) => (
-            <span key={i} className={styles.subjectTag}>{subject}</span>
-          ))}
-          {material.subjects?.length > 3 && (
-            <span className={styles.moreTag}>+{material.subjects.length - 3}</span>
-          )}
-        </div>
-
         <div className={styles.footer}>
-          <div className={styles.footerLeft}>
-            <div className={styles.difficulties}>
-              {material.difficulties?.slice(0, 2).map((difficulty, i) => (
-                <span key={i} className={styles.difficultyTag}>{difficulty}</span>
-              ))}
-            </div>
-            <div className={styles.date}>
-              <Clock size={12} />
-              <span>{formatDate(material.submitted_at)}</span>
-            </div>
+          <div className={styles.tags}>
+            {material.subjects?.slice(0, 2).map((subject, i) => (
+              <span key={i} className={styles.subjectTag}>{subject}</span>
+            ))}
+            {material.subjects?.length > 2 && (
+              <span className={styles.moreTag}>+{material.subjects.length - 2}</span>
+            )}
           </div>
           
-          {(
-            <button
-              className={`${styles.favoriteButton} ${isFavorited ? styles.favorited : ''}`}
-              onClick={handleFavoriteClick}
-              disabled={isToggling}
-              title={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
-            >
-              <Bookmark size={18} fill={isFavorited ? 'currentColor' : 'none'} />
-            </button>
-          )}
+          <button
+            className={`${styles.favoriteButton} ${isFavorited ? styles.favorited : ''}`}
+            onClick={handleFavoriteClick}
+            disabled={isToggling}
+            title={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
+          >
+            <Bookmark size={16} fill={isFavorited ? 'currentColor' : 'none'} />
+          </button>
         </div>
       </div>
     </div>
