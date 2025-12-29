@@ -102,11 +102,10 @@ body {
   margin-left: auto;
 }
 
-/* Main Section Grid */
+/* ========== MAIN SECTION - CSS COLUMNS LAYOUT ========== */
 .main-section {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 0.8fr));
-  gap: 1.5rem;
+  column-count: 4;
+  column-gap: 1.25rem;
 }
 
 /* Loader */
@@ -132,7 +131,7 @@ body {
 
 /* Search Loading */
 .search-loading {
-  grid-column: 1 / -1;
+  column-span: all;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -142,7 +141,7 @@ body {
 /* No Results */
 .no-results,
 .no-courses {
-  grid-column: 1 / -1;
+  column-span: all;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -179,7 +178,7 @@ body {
 
 /* Error Message */
 .error-message {
-  grid-column: 1 / -1;
+  column-span: all;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -216,14 +215,27 @@ body {
 
 /* ========== RESPONSIVE BREAKPOINTS ========== */
 
+/* Large Desktop */
+@media (min-width: 1600px) {
+  .main-section {
+    column-count: 5;
+  }
+}
+
 /* Large Tablet / Small Desktop */
+@media (max-width: 1400px) {
+  .main-section {
+    column-count: 3;
+  }
+}
+
 @media (max-width: 1200px) {
   .container {
     padding-left: 210px;
   }
 
   .main-section {
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    column-count: 3;
   }
 }
 
@@ -235,8 +247,8 @@ body {
   }
 
   .main-section {
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 1.25rem;
+    column-count: 2;
+    column-gap: 1rem;
   }
 }
 
@@ -246,7 +258,7 @@ body {
     padding-left: 1rem;
     padding-right: 1rem;
     padding-top: 5rem;
-    padding-bottom: 6rem; /* Space for floating filter button */
+    padding-bottom: 6rem;
   }
 
   .content-filters {
@@ -285,8 +297,8 @@ body {
   }
 
   .main-section {
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1rem;
+    column-count: 2;
+    column-gap: 0.75rem;
   }
 
   .no-results,
@@ -318,8 +330,7 @@ body {
   }
 
   .main-section {
-    grid-template-columns: 1fr;
-    gap: 0.875rem;
+    column-count: 1;
   }
 
   .active-filter {

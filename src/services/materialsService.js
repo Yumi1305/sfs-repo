@@ -122,6 +122,110 @@ class MaterialsService {
     if (error) throw error;
     return data;
   }
+
+  // ========== UPVOTE METHODS ==========
+
+  /**
+   * Add an upvote for a material
+   */
+  static async addUpvote(userId, materialId) {
+    const { data, error } = await supabase
+      .from('material_upvotes')
+      .insert({
+        user_id: userId,
+        material_id: materialId
+      })
+      .select()
+      .single();
+    
+    if (error) {
+      // Handle duplicate upvote gracefully
+      if (error.code === '23505') {
+        console.log('User has already upvoted this material');
+        return null;
+      }
+      throw error;
+    }
+    return data;
+  }
+
+  /**
+   * Remove an upvote for a material
+   */
+  static async removeUpvote(userId, materialId) {
+    const { error } = await supabase
+      .from('material_upvotes')
+      .delete()
+      .eq('user_id', userId)
+      .eq('material_id', materialId);
+    
+    if (error) throw error;
+    return true;
+  }
+
+  /**
+   * Check if a user has upvoted a specific material
+   */
+  static async hasUpvoted(userId, materialId) {
+    const { data, error } = await supabase
+      .from('material_upvotes')
+      .select('id')
+      .eq('user_id', userId)
+      .eq('material_id', materialId)
+      .single();
+    
+    if (error && error.code !== 'PGRST116') throw error; // PGRST116 = no rows
+    return !!data;
+  }
+
+  /**
+   * Get all material IDs that a user has upvoted
+   */
+  static async getUserUpvotes(userId) {
+    if (!userId) return [];
+    
+    const { data, error } = await supabase
+      .from('material_upvotes')
+      .select('material_id')
+      .eq('user_id', userId);
+    
+    if (error) throw error;
+    return data?.map(row => row.material_id) || [];
+  }
+
+  /**
+   * Get upvote count for a specific material
+   */
+  static async getUpvoteCount(materialId) {
+    const { count, error } = await supabase
+      .from('material_upvotes')
+      .select('*', { count: 'exact', head: true })
+      .eq('material_id', materialId);
+    
+    if (error) throw error;
+    return count || 0;
+  }
+
+  /**
+   * Toggle upvote - adds if not exists, removes if exists
+   * Returns { upvoted: boolean, count: number }
+   */
+  static async toggleUpvote(userId, materialId) {
+    const hasVoted = await this.hasUpvoted(userId, materialId);
+    
+    if (hasVoted) {
+      await this.removeUpvote(userId, materialId);
+    } else {
+      await this.addUpvote(userId, materialId);
+    }
+    
+    const count = await this.getUpvoteCount(materialId);
+    
+    return {
+      upvoted: !hasVoted,
+      count
+    };
+  }
 }
 
 export default MaterialsService;

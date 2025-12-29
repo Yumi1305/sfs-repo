@@ -4,24 +4,29 @@
   border-radius: 10px;
   overflow: hidden;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
   border: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   flex-direction: column;
-  height: 100%;
+  break-inside: avoid;
+  margin-bottom: 1rem;
 }
 
 .card:hover {
-  transform: translateY(-2px);
   border-color: rgba(255, 255, 255, 0.15);
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
 }
 
-/* Thumbnail - Reduced aspect ratio */
+.card.expanded {
+  border-color: rgba(59, 130, 246, 0.3);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+}
+
+/* Thumbnail */
 .thumbnail {
   position: relative;
   width: 100%;
-  aspect-ratio: 2 / 1; /* Changed from 16/9 to 2/1 for shorter height */
+  aspect-ratio: 2 / 1;
   overflow: hidden;
   background: rgb(24, 24, 27);
   flex-shrink: 0;
@@ -96,7 +101,7 @@
   opacity: 0.8;
 }
 
-/* Content - Reduced padding */
+/* Content */
 .content {
   padding: 0.875rem;
   display: flex;
@@ -146,6 +151,33 @@
   overflow: hidden;
 }
 
+/* ========== COLLAPSED CONTENT - Animated ========== */
+.collapsedWrapper {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition: grid-template-rows 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card.expanded .collapsedWrapper {
+  grid-template-rows: 0fr;
+}
+
+.collapsedInner {
+  overflow: hidden;
+}
+
+.collapsedContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  opacity: 1;
+  transition: opacity 0.2s ease;
+}
+
+.card.expanded .collapsedContent {
+  opacity: 0;
+}
+
 .description {
   margin: 0;
   font-size: 0.8125rem;
@@ -158,7 +190,7 @@
   font-family: Satoshi, Inter, sans-serif;
 }
 
-/* Footer - Combined tags and button */
+/* Footer - Collapsed state */
 .footer {
   display: flex;
   align-items: center;
@@ -166,6 +198,13 @@
   gap: 0.5rem;
   margin-top: auto;
   padding-top: 0.5rem;
+}
+
+.footerActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
 }
 
 .tags {
@@ -195,7 +234,20 @@
   font-weight: 500;
 }
 
-/* Favorite Button - Smaller */
+/* Upvote display (collapsed) */
+.upvoteDisplay {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  color: #9ca3af;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* Favorite Button */
 .favoriteButton {
   display: flex;
   align-items: center;
@@ -233,7 +285,152 @@
   cursor: not-allowed;
 }
 
-/* Responsive */
+/* ========== EXPANDED CONTENT - Smooth Animation ========== */
+.expandedWrapper {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card.expanded .expandedWrapper {
+  grid-template-rows: 1fr;
+}
+
+.expandedInner {
+  overflow: hidden;
+}
+
+.expandedContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  margin-top: 0.5rem;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 0.25s ease 0.15s, transform 0.25s ease 0.15s;
+}
+
+.card.expanded .expandedContent {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.fullDescription {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: #d1d5db;
+  line-height: 1.5;
+  font-family: Satoshi, Inter, sans-serif;
+}
+
+.allTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.difficultyTagExpanded {
+  padding: 0.2rem 0.5rem;
+  background: rgba(139, 92, 246, 0.15);
+  color: #a78bfa;
+  border-radius: 4px;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+/* Upvote Section */
+.upvoteSection {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.upvoteButton {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 0.875rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  color: #9ca3af;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: Inter, sans-serif;
+}
+
+.upvoteButton:hover:not(:disabled) {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: rgba(59, 130, 246, 0.3);
+  color: #60a5fa;
+}
+
+.upvoteButton:hover:not(:disabled) svg {
+  transform: translateY(-2px);
+}
+
+.upvoteButton svg {
+  transition: transform 0.2s ease;
+}
+
+.upvoteButton.upvoted {
+  background: rgba(59, 130, 246, 0.15);
+  border-color: rgba(59, 130, 246, 0.4);
+  color: #3b82f6;
+}
+
+.upvoteButton.upvoted svg {
+  fill: currentColor;
+}
+
+.upvoteButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.signInHint {
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-style: italic;
+}
+
+/* Expanded Actions */
+.expandedActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.openLink {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 0.875rem;
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 8px;
+  color: #60a5fa;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: Inter, sans-serif;
+  flex: 1;
+  justify-content: center;
+}
+
+.openLink:hover {
+  background: rgba(59, 130, 246, 0.25);
+  border-color: rgba(59, 130, 246, 0.4);
+}
+
+/* ========== RESPONSIVE ========== */
 @media (max-width: 1024px) {
   .content {
     padding: 0.75rem;
@@ -243,12 +440,17 @@
     font-size: 0.875rem;
   }
 
-  .description {
+  .description,
+  .fullDescription {
     font-size: 0.75rem;
   }
 }
 
 @media (max-width: 768px) {
+  .card {
+    margin-bottom: 0.875rem;
+  }
+
   .card:hover {
     transform: none;
   }
@@ -271,7 +473,8 @@
     font-size: 0.875rem;
   }
 
-  .description {
+  .description,
+  .fullDescription {
     font-size: 0.75rem;
   }
 
@@ -284,8 +487,18 @@
     height: 36px;
   }
 
-  .externalIcon {
-    opacity: 0.5;
+  .upvoteButton {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8125rem;
+  }
+
+  .openLink {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+  }
+
+  .expandedContent {
+    gap: 0.625rem;
   }
 }
 
@@ -298,11 +511,25 @@
     font-size: 0.8125rem;
   }
 
-  .description {
+  .description,
+  .fullDescription {
     font-size: 0.6875rem;
   }
 
   .placeholderThumbnail span {
     font-size: 0.625rem;
+  }
+
+  .expandedActions {
+    flex-direction: column;
+  }
+
+  .openLink {
+    width: 100%;
+  }
+
+  .favoriteButton {
+    width: 100%;
+    height: 36px;
   }
 }

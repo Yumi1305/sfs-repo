@@ -10,6 +10,7 @@ import clsx from "clsx";
 import { decodeHtmlEntities } from "../../services/helpers";
 import { useUserContext } from '../../hooks/useUserContext';
 import { supabase } from "../../lib/supabase";
+import MaterialsService from "../../services/materialsService";
 import ErrorMessage from "../../components/ErrorMessage";
 
 function MainPage() {
@@ -20,6 +21,7 @@ function MainPage() {
   const [fadeOut, setFadeOut] = useState(false);
   const [materials, setMaterials] = useState([]);
   const [materialsLoading, setMaterialsLoading] = useState(true);
+  const [userUpvotes, setUserUpvotes] = useState([]);
   
   // Search & filter state
   const [searchTerm, setSearchTerm] = useState('');
@@ -54,6 +56,47 @@ function MainPage() {
     fetchMaterials();
   }, []);
 
+  // Fetch user's upvotes when user changes
+  useEffect(() => {
+    const fetchUserUpvotes = async () => {
+      if (!user) {
+        setUserUpvotes([]);
+        return;
+      }
+      
+      try {
+        const upvotes = await MaterialsService.getUserUpvotes(user.id);
+        setUserUpvotes(upvotes);
+      } catch (err) {
+        console.error('Error fetching user upvotes:', err);
+      }
+    };
+
+    fetchUserUpvotes();
+  }, [user]);
+
+  // Handle upvote changes from MaterialCard
+  const handleUpvoteChange = (materialId, isUpvoted) => {
+    setUserUpvotes(prev => {
+      if (isUpvoted) {
+        return [...prev, materialId];
+      } else {
+        return prev.filter(id => id !== materialId);
+      }
+    });
+
+    // Update local material upvote count
+    setMaterials(prev => prev.map(m => {
+      if (m.id === materialId) {
+        return {
+          ...m,
+          upvote_count: (m.upvote_count || 0) + (isUpvoted ? 1 : -1)
+        };
+      }
+      return m;
+    }));
+  };
+
   // Handle search
   const handleSearch = (term) => {
     setSearchTerm(term);
@@ -83,35 +126,15 @@ function MainPage() {
   const handleSelectCategory = (selectedCats) => {
     setCategories(selectedCats)
     console.log(selectedCats)
-    // setCategory(cat);
     setSearchTerm('');
     setSearchResults({ courses: [], materials: [] });
 
     const getCourseTags = (course) => 
       course?.course_tag?.map(t => t.slug) || [];
 
-    const categoryToSubject = {
-      'math': 'Math',
-      'science': 'Science',
-      'english': 'English',
-      'history': 'History',
-      'computer-science': 'Computer Science',
-      'web-developmnet': 'Web Development', 
-      'foreign-language': 'Foreign Language',
-      'art': 'Art',
-      'music': 'Music',
-      'economics': 'Economics',
-      'psychology': 'Psychology',
-      'biology': 'Biology',
-      'chemistry': 'Chemistry',
-      'physics': 'Physics',
-      'sat-act-prep': 'SAT/ACT Prep',
-      'ap-courses': 'AP Courses'
-    };
-
     const filteredCourses = courseList.filter(course => 
-    getCourseTags(course).some(tag => selectedCats.includes(tag.toLowerCase()))
-  );
+      getCourseTags(course).some(tag => selectedCats.includes(tag.toLowerCase()))
+    );
   
     const filteredMaterials = materials.filter(material =>
       material.subjects?.some(s => selectedCats.includes(s))
@@ -216,13 +239,7 @@ function MainPage() {
 
         <section className={styles["main-section"]}>
           
-            <ErrorMessage error={error}  onDismiss={()=>{clearError()}} ></ErrorMessage>
-            {/* // <div className={styles["error-message"]}>
-            //   <p>⚠️ {error}</p>
-            //   <button onClick={clearError} className={styles["clear-error-btn"]}>
-            //     ✕ Dismiss
-            //   </button>
-            // </div> */}
+          <ErrorMessage error={error} onDismiss={() => { clearError() }} />
  
           {/* Courses */}
           {coursesToDisplay.map(course => (
@@ -231,7 +248,12 @@ function MainPage() {
 
           {/* Materials */}
           {materialsToDisplay.map(material => (
-            <MaterialCard key={`material-${material.id}`} material={material} />
+            <MaterialCard 
+              key={`material-${material.id}`} 
+              material={material}
+              userUpvotes={userUpvotes}
+              onUpvoteChange={handleUpvoteChange}
+            />
           ))}
 
           {/* No results */}
