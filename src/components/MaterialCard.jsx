@@ -3,6 +3,7 @@ import styles from './MaterialCard.module.css';
 import { Link as LinkIcon, Youtube, FileText, File, Bookmark, ArrowUp, ExternalLink } from 'lucide-react';
 import { useUserContext } from '../hooks/useUserContext';
 import MaterialsService from '../services/materialsService';
+import SignInModal from './SignInModal';
 
 const TYPE_CONFIG = {
   link: { icon: LinkIcon, label: 'Link', color: '#3b82f6' },
@@ -19,6 +20,7 @@ function MaterialCard({ material, userUpvotes = [], onUpvoteChange }) {
   const [isUpvoting, setIsUpvoting] = useState(false);
   const [localUpvoteCount, setLocalUpvoteCount] = useState(material.upvote_count || 0);
   const [hasUpvoted, setHasUpvoted] = useState(false);
+  const [showSignInModal, setShowSignInModal] = useState(false);
   const cardRef = useRef(null);
   
   const config = TYPE_CONFIG[material.type] || TYPE_CONFIG.link;
@@ -59,10 +61,13 @@ function MaterialCard({ material, userUpvotes = [], onUpvoteChange }) {
     e.preventDefault();
     e.stopPropagation();
     
-    if (!user || isToggling) {
-      console.log("not logged in!");
+    if (!user) {
+      // Show sign-in modal
+      setShowSignInModal(true);
       return;
     }
+    
+    if (isToggling) return;
     
     setIsToggling(true);
     await toggleMaterialFavorite(material.id);
@@ -74,7 +79,8 @@ function MaterialCard({ material, userUpvotes = [], onUpvoteChange }) {
     e.stopPropagation();
     
     if (!user) {
-      console.log("Sign in to upvote!");
+      // Show sign-in modal
+      setShowSignInModal(true);
       return;
     }
     
@@ -112,74 +118,135 @@ function MaterialCard({ material, userUpvotes = [], onUpvoteChange }) {
     : material.thumbnail_url;
 
   return (
-    <div 
-      ref={cardRef}
-      className={`${styles.card} ${isExpanded ? styles.expanded : ''}`}
-      onClick={handleCardInteraction}
-    >
-      {/* Thumbnail */}
-      {thumbnail ? (
-        <div className={styles.thumbnail}>
-          <img src={thumbnail} alt={material.title} />
-          {material.type === 'youtube' && (
-            <div className={styles.playButton}>
-              <Youtube size={20} />
-            </div>
-          )}
-          {material.type === 'pdf' && (
-            <div className={styles.typeOverlay}>
-              <FileText size={16} />
-              <span>PDF</span>
-            </div>
-          )}
-        </div>
-      ) : (
-        <div className={styles.placeholderThumbnail} style={{ backgroundColor: `${config.color}15` }}>
-          <IconComponent size={32} style={{ color: config.color }} />
-          <span style={{ color: config.color }}>{config.label}</span>
-        </div>
-      )}
-      
-      {/* Content */}
-      <div className={styles.content}>
-        <div className={styles.header}>
-          <div 
-            className={styles.typeBadge}
-            style={{ backgroundColor: `${config.color}20`, color: config.color }}
-          >
-            <IconComponent size={12} />
-            <span>{config.label}</span>
+    <>
+      <div 
+        ref={cardRef}
+        className={`${styles.card} ${isExpanded ? styles.expanded : ''}`}
+        onClick={handleCardInteraction}
+      >
+        {/* Thumbnail */}
+        {thumbnail ? (
+          <div className={styles.thumbnail}>
+            <img src={thumbnail} alt={material.title} />
+            {material.type === 'youtube' && (
+              <div className={styles.playButton}>
+                <Youtube size={20} />
+              </div>
+            )}
+            {material.type === 'pdf' && (
+              <div className={styles.typeOverlay}>
+                <FileText size={16} />
+                <span>PDF</span>
+              </div>
+            )}
           </div>
-          {material.difficulties?.[0] && (
-            <span className={styles.difficultyTag}>{material.difficulties[0]}</span>
-          )}
-        </div>
+        ) : (
+          <div className={styles.placeholderThumbnail} style={{ backgroundColor: `${config.color}15` }}>
+            <IconComponent size={32} style={{ color: config.color }} />
+            <span style={{ color: config.color }}>{config.label}</span>
+          </div>
+        )}
+        
+        {/* Content */}
+        <div className={styles.content}>
+          <div className={styles.header}>
+            <div 
+              className={styles.typeBadge}
+              style={{ backgroundColor: `${config.color}20`, color: config.color }}
+            >
+              <IconComponent size={12} />
+              <span>{config.label}</span>
+            </div>
+            {material.difficulties?.[0] && (
+              <span className={styles.difficultyTag}>{material.difficulties[0]}</span>
+            )}
+          </div>
 
-        <h3 className={styles.title}>{material.title}</h3>
+          <h3 className={styles.title}>{material.title}</h3>
 
-        {/* Collapsed content - animates out */}
-        <div className={styles.collapsedWrapper}>
-          <div className={styles.collapsedInner}>
-            <div className={styles.collapsedContent}>
-              {material.description && (
-                <p className={styles.description}>{material.description}</p>
-              )}
+          {/* Collapsed content - animates out */}
+          <div className={styles.collapsedWrapper}>
+            <div className={styles.collapsedInner}>
+              <div className={styles.collapsedContent}>
+                {material.description && (
+                  <p className={styles.description}>{material.description}</p>
+                )}
 
-              <div className={styles.footer}>
-                <div className={styles.tags}>
-                  {material.subjects?.slice(0, 2).map((subject, i) => (
+                <div className={styles.footer}>
+                  <div className={styles.tags}>
+                    {material.subjects?.slice(0, 2).map((subject, i) => (
+                      <span key={i} className={styles.subjectTag}>{subject}</span>
+                    ))}
+                    {material.subjects?.length > 2 && (
+                      <span className={styles.moreTag}>+{material.subjects.length - 2}</span>
+                    )}
+                  </div>
+                  
+                  <div className={styles.footerActions}>
+                    <div className={styles.upvoteDisplay}>
+                      <ArrowUp size={14} />
+                      <span>{localUpvoteCount}</span>
+                    </div>
+                    
+                    <button
+                      className={`${styles.favoriteButton} ${isFavorited ? styles.favorited : ''}`}
+                      onClick={handleFavoriteClick}
+                      disabled={isToggling}
+                      title={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
+                    >
+                      <Bookmark size={16} fill={isFavorited ? 'currentColor' : 'none'} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Expanded content - animates in */}
+          <div className={styles.expandedWrapper}>
+            <div className={styles.expandedInner}>
+              <div className={styles.expandedContent}>
+                {/* Full description */}
+                {material.description && (
+                  <p className={styles.fullDescription}>{material.description}</p>
+                )}
+
+                {/* All tags */}
+                <div className={styles.allTags}>
+                  {material.subjects?.map((subject, i) => (
                     <span key={i} className={styles.subjectTag}>{subject}</span>
                   ))}
-                  {material.subjects?.length > 2 && (
-                    <span className={styles.moreTag}>+{material.subjects.length - 2}</span>
+                  {material.difficulties?.map((diff, i) => (
+                    <span key={`diff-${i}`} className={styles.difficultyTagExpanded}>{diff}</span>
+                  ))}
+                </div>
+
+                {/* Upvote section */}
+                <div className={styles.upvoteSection}>
+                  <button
+                    className={`${styles.upvoteButton} ${hasUpvoted ? styles.upvoted : ''}`}
+                    onClick={handleUpvoteClick}
+                    disabled={isUpvoting}
+                    title={!user ? 'Sign in to upvote' : hasUpvoted ? 'Remove upvote' : 'Upvote this material'}
+                  >
+                    <ArrowUp size={18} />
+                    <span>{localUpvoteCount}</span>
+                  </button>
+                  
+                  {!user && (
+                    <span className={styles.signInHint}>Sign in to upvote</span>
                   )}
                 </div>
-                
-                <div className={styles.footerActions}>
-                  <div className={styles.upvoteDisplay}>
-                    <ArrowUp size={14} />
-                    <span>{localUpvoteCount}</span>
-                  </div>
+
+                {/* Action buttons */}
+                <div className={styles.expandedActions}>
+                  <button
+                    className={styles.openLink}
+                    onClick={handleOpenLink}
+                  >
+                    <ExternalLink size={16} />
+                    <span>Open {config.label}</span>
+                  </button>
                   
                   <button
                     className={`${styles.favoriteButton} ${isFavorited ? styles.favorited : ''}`}
@@ -194,67 +261,14 @@ function MaterialCard({ material, userUpvotes = [], onUpvoteChange }) {
             </div>
           </div>
         </div>
-
-        {/* Expanded content - animates in */}
-        <div className={styles.expandedWrapper}>
-          <div className={styles.expandedInner}>
-            <div className={styles.expandedContent}>
-              {/* Full description */}
-              {material.description && (
-                <p className={styles.fullDescription}>{material.description}</p>
-              )}
-
-              {/* All tags */}
-              <div className={styles.allTags}>
-                {material.subjects?.map((subject, i) => (
-                  <span key={i} className={styles.subjectTag}>{subject}</span>
-                ))}
-                {material.difficulties?.map((diff, i) => (
-                  <span key={`diff-${i}`} className={styles.difficultyTagExpanded}>{diff}</span>
-                ))}
-              </div>
-
-              {/* Upvote section */}
-              <div className={styles.upvoteSection}>
-                <button
-                  className={`${styles.upvoteButton} ${hasUpvoted ? styles.upvoted : ''}`}
-                  onClick={handleUpvoteClick}
-                  disabled={isUpvoting}
-                  title={!user ? 'Sign in to upvote' : hasUpvoted ? 'Remove upvote' : 'Upvote this material'}
-                >
-                  <ArrowUp size={18} />
-                  <span>{localUpvoteCount}</span>
-                </button>
-                
-                {!user && (
-                  <span className={styles.signInHint}>Sign in to upvote</span>
-                )}
-              </div>
-
-              {/* Action buttons */}
-              <div className={styles.expandedActions}>
-                <button
-                  className={styles.openLink}
-                  onClick={handleOpenLink}
-                >
-                  <ExternalLink size={16} />
-                  <span>Open {config.label}</span>
-                </button>
-                
-                <button
-                  className={`${styles.favoriteButton} ${isFavorited ? styles.favorited : ''}`}
-                  onClick={handleFavoriteClick}
-                  disabled={isToggling}
-                  title={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
-                >
-                  <Bookmark size={16} fill={isFavorited ? 'currentColor' : 'none'} />
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
-    </div>
+
+      {/* Sign In Modal */}
+      <SignInModal 
+        isOpen={showSignInModal} 
+        onClose={() => setShowSignInModal(false)} 
+      />
+    </>
   );
 }
 

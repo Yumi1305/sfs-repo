@@ -1,103 +1,56 @@
 import styles from './ProfileDropdown.module.css';
 import { User, HelpCircle, FlaskConical, Settings, LogOut } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
-import { useState } from 'react';
-import LogoutModal from './LogoutModal';
 import { Link } from 'react-router-dom';
 import { useUserContext } from '../hooks/useUserContext';
 
-export default function ProfileDropdown({ open }) {
+export default function ProfileDropdown({ open, onLogoutClick }) {
   const navigate = useNavigate();
-  const [showLogoutModal, setShowLogoutModal] = useState(false);
-  const [loggingOut, setLoggingOut] = useState(false);
-  const {user} = useUserContext();
+  const { user } = useUserContext();
 
-  const handleLogoutClick = () => {
-    setShowLogoutModal(true);
-  };
-
-  const handleCloseModal = () => {
-    if (!loggingOut) {
-      setShowLogoutModal(false);
+  const handleLogoutClick = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    if (onLogoutClick) {
+      onLogoutClick();
     }
   };
 
-  const handleConfirmLogout = async () => {
-    setLoggingOut(true);
-    
-    try {
-      const { error } = await supabase.auth.signOut();
-      
-      if (error) {
-        console.error('Error signing out:', error);
-        // Handle error - maybe show a toast notification
-      } else {
-        // Success - the auth state change will handle navigation
-        setShowLogoutModal(false);
-      }
-    } catch (err) {
-      console.error('Unexpected error during logout:', err);
-    } finally {
-      navigate('/login');
-      setLoggingOut(false);
-    }
-  };
-  // if (!user){
-  //   return(
-  //     <div className={styles.wrapper}>
-  //       <div className={styles.item} onClick={()=>{
-  //         navigate('/login');
-  //       }}>
-  //         Sign In
-  //       </div>
-  //     </div>
-  //   )
-  // }
-  if (!open){
-    return null
-  }
-  
-  if (!user){
+  if (!open) return null;
+
+  if (!user) {
     return (
       <div className={styles.wrapper}>
         <div className={styles.signInDropdown}>
           <div 
             className={styles.signInItem}
-            onClick={() => navigate('/login')} 
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate('/login');
+            }} 
           >
             Sign In
           </div>
         </div>
       </div>
-    )
+    );
   }
 
-  return (   
-    <div className={styles.wrapper}>
-      {open && !showLogoutModal ? (
-        <div className={styles.dropdown}>
-          <div className={styles.item}><User size={16} /> Profile</div>
-          <div className={styles.item}><HelpCircle size={16} /> Help</div>
-          <div className={styles.divider}></div>
-          <div className={styles.item}><FlaskConical size={16} /> Developer Mode</div>
-          <div className={styles.divider}></div>
-          <Link
-          to={'/settings'}>
+  return (
+    <div className={styles.wrapper} onClick={(e) => e.stopPropagation()}>
+      <div className={styles.dropdown}>
+        <div className={styles.item}><User size={16} /> Profile</div>
+        <div className={styles.item}><HelpCircle size={16} /> Help</div>
+        <div className={styles.divider}></div>
+        <div className={styles.item}><FlaskConical size={16} /> Developer Mode</div>
+        <div className={styles.divider}></div>
+        <Link to={'/settings'} onClick={(e) => e.stopPropagation()}>
           <div className={styles.item}><Settings size={16} /> Settings</div>
-          </Link>
-          <div className={styles.item} onClick={handleLogoutClick}><LogOut size={16} /> Logout</div>
+        </Link>
+        <div className={styles.item} onClick={handleLogoutClick}>
+          <LogOut size={16} /> Logout
         </div>
-        
-      ) : (
-        <LogoutModal
-        isOpen={showLogoutModal}
-        onClose={handleCloseModal}
-        onConfirm={handleConfirmLogout}
-        loading={loggingOut}
-      />
-      )}
+      </div>
     </div>
-    
   );
-} 
+}

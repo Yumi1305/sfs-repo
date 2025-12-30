@@ -17,6 +17,7 @@ function SearchBar({ onSearch, placeholder = "Search..." }) {
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
       handleSearch();
+      setSearchTerm("")
     }
   };
 
@@ -40,10 +41,6 @@ function SearchBar({ onSearch, placeholder = "Search..." }) {
       >
         <FaSearch />
       </button>
-      <div className={styles.shortcut}>
-        <span className={styles.key}>⌘</span>
-        <span className={styles.key}>K</span>
-      </div>
     </div>
   );
 }

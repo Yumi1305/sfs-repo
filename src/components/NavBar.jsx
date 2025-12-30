@@ -3,12 +3,15 @@ import clsx from 'clsx';
 import { useState, useEffect } from 'react';
 import { Upload, Menu, X } from 'lucide-react';
 import ProfileDropdown from './ProfileDropdown';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import SearchBar from './SearchBar';
 import UploadMaterialModal from './UploadMaterialModal';
 import { useUserContext } from '../hooks/useUserContext';
 import SignInModal from './SignInModal'; 
-import MaterialsService from '../services/materialsService'
+import LogoutModal from './LogoutModal';
+import MaterialsService from '../services/materialsService';
+import { supabase } from '../lib/supabase';
+import ErrorMessage from '../components/ErrorMessage'
 
 function NavBar({ onSearch }) {
   const [profileOpen, setProfileOpen] = useState(false);
@@ -16,7 +19,11 @@ function NavBar({ onSearch }) {
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [uploadNotification, setUploadNotification] = useState(null);
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
+  
   const location = useLocation();
+  const navigate = useNavigate();
   const { user } = useUserContext();
 
   // Close mobile menu on route change
@@ -36,6 +43,18 @@ function NavBar({ onSearch }) {
     };
   }, [mobileMenuOpen]);
 
+  // Close profile dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (profileOpen && !e.target.closest(`.${styles.profileIcon}`)) {
+        setProfileOpen(false);
+      }
+    };
+    
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [profileOpen]);
+
   const getActiveBtn = () => {
     if (location.pathname === '/mainpg') return 'dashboard';
     if (location.pathname === '/my-courses') return 'my-courses';
@@ -53,23 +72,21 @@ function NavBar({ onSearch }) {
   };
 
   const handleOpenUploadModal = () => {
-    if (user){
+    if (user) {
       setIsUploadModalOpen(true);
       setMobileMenuOpen(false);
     } else {
       setIsSignInModalOpen(true); 
     }
-    
-    
   };
 
   const handleCloseUploadModal = () => {
     setIsUploadModalOpen(false);
   };
 
-  const handleCloseSignInModal =() => {
+  const handleCloseSignInModal = () => {
     setIsSignInModalOpen(false); 
-    }
+  };
 
   const handleMaterialSubmit = async (materialData) => {
     if (!user) throw new Error('User not authenticated');
@@ -85,6 +102,52 @@ function NavBar({ onSearch }) {
       console.error('Error submitting material:', error);
       throw error;
     }
+  };
+
+  // Logout handlers (lifted from ProfileDropdown)
+  const handleLogoutClick = () => {
+    setProfileOpen(false); // Close dropdown
+    setShowLogoutModal(true); // Show modal
+  };
+
+  const handleCloseLogoutModal = () => {
+    if (!loggingOut) {
+      setShowLogoutModal(false);
+    }
+  };
+
+  const handleConfirmLogout = async () => {
+    setLoggingOut(true);
+    
+    try {
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error('Error signing out:', error);
+      } else {
+        setShowLogoutModal(false);
+      }
+    } catch (err) {
+      console.error('Unexpected error during logout:', err);
+    } finally {
+      navigate('/login');
+      setLoggingOut(false);
+    }
+  };
+
+  const handleFavoritesClick = () => {
+    if (!user){
+      setIsSignInModalOpen(true); 
+      throw new Error('User not authenticated');
+    } else {
+      navigate('/favorites')
+    }
+
+  }
+
+  const handleProfileClick = (e) => {
+    e.stopPropagation();
+    setProfileOpen(!profileOpen);
   };
 
   return (
@@ -113,10 +176,7 @@ function NavBar({ onSearch }) {
           <Link to="/donate" className={clsx(styles.navBtn, activebtn === 'donate' && styles.active)}>
             donate
           </Link>
-          {/* <Link to="/tutoring" className={clsx(styles.navBtn, activebtn === 'tutor' && styles.active)}>
-            tutoring
-          </Link> */}
-          <Link to="/favorites" className={clsx(styles.favorites, styles.navBtn)}>
+          <button onClick={handleFavoritesClick} className={clsx(styles.favorites, styles.navBtn)}>
             <svg
               className={clsx(styles.favoritesSvg, activebtn === 'favorites' && styles.active)}
               xmlns="http://www.w3.org/2000/svg"
@@ -126,9 +186,12 @@ function NavBar({ onSearch }) {
             >
               <path d="M200-120v-640q0-33 23.5-56.5T280-840h400q33 0 56.5 23.5T760-760v640L480-240 200-120Zm80-122 200-86 200 86v-518H280v518Zm0-518h400-400Z" />
             </svg>
-          </Link>
-          <button className={styles.profileIcon} onClick={() => setProfileOpen(!profileOpen)}>
-            <ProfileDropdown open={profileOpen} />
+          </button>
+          <button className={styles.profileIcon} onClick={handleProfileClick}>
+            <ProfileDropdown 
+              open={profileOpen} 
+              onLogoutClick={handleLogoutClick}
+            />
           </button>
         </div>
 
@@ -171,19 +234,31 @@ function NavBar({ onSearch }) {
         </button>
 
         <div className={styles.mobileProfileSection}>
-          <button className={styles.mobileProfileBtn} onClick={() => setProfileOpen(!profileOpen)}>
+          <button className={styles.mobileProfileBtn} onClick={handleProfileClick}>
             <div className={styles.mobileProfileIcon} />
             <span>Profile</span>
           </button>
         </div>
       </div>
 
+      {/* Modals - rendered at NavBar level so they're independent of dropdown state */}
       <UploadMaterialModal
         isOpen={isUploadModalOpen}
         onClose={handleCloseUploadModal}
         onSubmit={handleMaterialSubmit}
       />
-      <SignInModal isOpen={isSignInModalOpen} onClose={handleCloseSignInModal}></SignInModal>
+      
+      <SignInModal 
+        isOpen={isSignInModalOpen} 
+        onClose={handleCloseSignInModal}
+      />
+
+      <LogoutModal
+        isOpen={showLogoutModal}
+        onClose={handleCloseLogoutModal}
+        onConfirm={handleConfirmLogout}
+        loading={loggingOut}
+      />
 
       {uploadNotification && (
         <div className={clsx(styles.notificationToast, styles[`notification-${uploadNotification.type}`])}>
